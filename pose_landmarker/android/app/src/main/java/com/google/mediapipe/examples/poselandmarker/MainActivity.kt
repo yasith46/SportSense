@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.google.firebase.FirebaseApp
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -38,10 +39,16 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding.navigation.setupWithNavController(navController)
         activityMainBinding.navigation.setOnNavigationItemReselectedListener {
             // ignore the reselection
+
         }
+
+
+
     }
 
     override fun onBackPressed() {
         finish()
     }
+
+
 }
