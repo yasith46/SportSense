@@ -24,18 +24,19 @@ object FirebaseManager {
         }
 
         // Function to fetch joints and their expected angles for a specific sport and technique
-        fun fetchJointsAndAngles(sportName: String, techniqueName: String, onComplete: (List<Map<String, Any>>) -> Unit) {
-            val techniqueRef = db.collection(sportName).document(techniqueName)
+        fun fetchJointsAndAngles(sportName: String, techniqueName: String, subcollectionName: String, onComplete: (List<Map<String, Any>>) -> Unit) {
+            val techniqueRef = db.collection(sportName).document(techniqueName).collection(subcollectionName)
 
-            techniqueRef.collection("joints").get().addOnSuccessListener { jointsSnapshot ->
+            techniqueRef.get().addOnSuccessListener { jointsSnapshot ->
                 val joints = jointsSnapshot.documents.mapNotNull { it.data }
                 onComplete(joints)
             }.addOnFailureListener { e ->
-                Log.w("Firestore", "Error getting joints collection", e)
+                Log.w("Firestore", "Error getting $subcollectionName collection", e)
                 onComplete(emptyList())
             }
         }
-    }
+
+}
 
 
 

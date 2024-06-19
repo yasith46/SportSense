@@ -72,12 +72,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     init {
         initPaints()
-        fetchAndStoreData("Sprint", "Technique1")
+        fetchAndStoreData("Sprint", "Technique1", "pos_set")
         addNewTechnique()
     }
 
-    private fun fetchAndStoreData(sportName: String, techniqueName: String) {
-        FirebaseManager.fetchJointsAndAngles(sportName, techniqueName) { joints ->
+    private fun fetchAndStoreData(sportName: String, techniqueName: String, subcollectionName: String) {
+        FirebaseManager.fetchJointsAndAngles(sportName, techniqueName, subcollectionName) { joints ->
             allJoints.clear()
             allJoints.addAll(joints.map { joint ->
                 val joint1 = (joint["joint1"] as Long).toInt()
@@ -101,6 +101,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             Log.d(TAG, "Updated joints data: $allJoints")
         }
     }
+
 
 
 
@@ -166,13 +167,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             for (landmark in poseLandmarkerResult.landmarks()) {
                 Log.d(TAG, "brooo: $allJoints")
                 // Draw points
-                for (normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor,
-                        normalizedLandmark.y() * imageHeight * scaleFactor,
-                        pointPaint
-                    )
-                }
+//                for (normalizedLandmark in landmark) {
+//                    canvas.drawPoint(
+//                        normalizedLandmark.x() * imageWidth * scaleFactor,
+//                        normalizedLandmark.y() * imageHeight * scaleFactor,
+//                        pointPaint
+//                    )
+//                }
 
                 // Calculate angles and determine line colors
                 for (angleSet in allJoints) {
