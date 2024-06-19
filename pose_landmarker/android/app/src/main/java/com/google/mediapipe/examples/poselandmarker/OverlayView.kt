@@ -89,7 +89,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         val techniqueName = "Technique1"
         val jointsData = listOf(
             mapOf("joint1" to 24, "joint2" to 26, "joint3" to 28, "expectedAngle" to 90),
-            mapOf("joint1" to 28, "joint2" to 26, "joint3" to 24, "expectedAngle" to 90),
+            mapOf("joint1" to 12, "joint2" to 14, "joint3" to 16, "expectedAngle" to 180),
             mapOf("joint1" to 23, "joint2" to 25, "joint3" to 27, "expectedAngle" to 120)
             // Add more joint sets as needed
         )
@@ -123,7 +123,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         textPaint.textAlign = Paint.Align.LEFT
     }
 
-    private fun getLineColor(angle: Long, expectedAngle: Double, range: Int): Int {
+    private fun getLineColor(angle: Double, expectedAngle: Double, range: Int): Int {
         val deviation = kotlin.math.abs(angle - expectedAngle).toFloat()
         val maxDeviation = range.toFloat()
         val fraction = deviation / maxDeviation
@@ -136,16 +136,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
-
-
-
-
-
-
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
+            val linesToDraw = mutableListOf<LineData>()
+
+            // Process landmarks and angles
             for (landmark in poseLandmarkerResult.landmarks()) {
+                // Draw points
                 for (normalizedLandmark in landmark) {
                     canvas.drawPoint(
                         normalizedLandmark.x() * imageWidth * scaleFactor,
@@ -154,53 +152,64 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     )
                 }
 
+                // Calculate angles and determine line colors
                 for (angleSet in allJoints) {
                     val joint1 = angleSet["joint1"] as Int
                     val joint2 = angleSet["joint2"] as Int
                     val joint3 = angleSet["joint3"] as Int
-                    val expectedAngle = angleSet["expectedAngle"] as Long
-
-
-
-
-
-
-                    // Calculate angle between landmarks 28, 26, 24
-
-
-
+                    val expectedAngle = (angleSet["expectedAngle"] as Long).toDouble() // Convert Long to Double
 
                     val angle = getAngle(landmark, joint1, joint2, joint3)
-                    val useRedPaint = (angle < expectedAngle - range || angle >expectedAngle + range)
+                    val useRedPaint = (angle < expectedAngle - range || angle > expectedAngle + range)
 
                     Log.d(TAG, "Angle: $angle")
 
-
+                    // Store line data
                     PoseLandmarker.POSE_LANDMARKS.forEach { poseLandmark ->
                         val startX = poseLandmarkerResult.landmarks()[0][poseLandmark!!.start()].x() * imageWidth * scaleFactor
                         val startY = poseLandmarkerResult.landmarks()[0][poseLandmark.start()].y() * imageHeight * scaleFactor
                         val endX = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].x() * imageWidth * scaleFactor
                         val endY = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].y() * imageHeight * scaleFactor
 
-                        Log.d(TAG, "Angle: $poseLandmark.start()")
-
                         if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint3) ||
                             (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ||
-                            (poseLandmark.start() == joint3 && poseLandmark.end() == joint1)
-                        ) {
-                            canvas.drawText(String.format("%.1f", angle), startX, startY, textPaint)
-                            linePaint.color= getLineColor(expectedAngle, angle, range)
-                            canvas.drawLine(startX, startY, endX, endY, if (useRedPaint) redLinePaint else linePaint)
-
-
-                        } else {
-                            linePaint.color=Color.GREEN
-                            canvas.drawLine(startX, startY, endX, endY, linePaint)
+                            (poseLandmark.start() == joint3 && poseLandmark.end() == joint1)) {
+                            linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
+                        } 
                     }
                 }
             }
+
+            // Draw all lines
+            for (lineData in linesToDraw) {
+                if (lineData.angle != null) {
+                    // Draw angle text
+                    canvas.drawText(String.format("%.1f", lineData.angle), lineData.startX, lineData.startY, textPaint)
+                    // Determine line color
+                    linePaint.color = getLineColor(lineData.expectedAngle!!, lineData.angle, range)
+                    canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, if (lineData.useRedPaint) redLinePaint else linePaint)
+                } else {
+                    linePaint.color = Color.GREEN
+                    canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, linePaint)
+                }
+            }
         }
-    }}
+    }
+
+    // Helper data class to store line information
+    data class LineData(
+        val startX: Float,
+        val startY: Float,
+        val endX: Float,
+        val endY: Float,
+        val angle: Double?,
+        val expectedAngle: Double?,
+        val useRedPaint: Boolean
+    )
+
+
+    // Helper data class to store line information
+
 
     // Function to calculate the angle between three points
     private fun getAngle(landmarks: MutableList<NormalizedLandmark>, index1: Int, index2: Int, index3: Int): Double {
