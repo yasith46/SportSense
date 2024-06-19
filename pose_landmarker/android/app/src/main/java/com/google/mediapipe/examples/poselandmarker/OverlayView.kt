@@ -15,6 +15,7 @@
  */
 package com.google.mediapipe.examples.poselandmarker
 
+import android.animation.ArgbEvaluator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -30,6 +31,7 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlin.math.max
 import kotlin.math.min
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import kotlin.math.abs
 import kotlin.math.atan2
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
@@ -43,6 +45,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
     private var redLinePaint = Paint()
+    private var range = 30
+    private var expAngle1: Double= 90.0
+    private var expAngle2: Double= 120.0
+
+    private var textPaint = Paint().apply {
+        color = Color.WHITE
+        textSize = 40f
+        textAlign = Paint.Align.LEFT
+    }
+
 
     init {
         initPaints()
@@ -57,8 +69,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun initPaints() {
-        linePaint.color =
-            ContextCompat.getColor(context!!, R.color.mp_color_primary)
+        linePaint.color = Color.GREEN
+            //ContextCompat.getColor(context!!, R.color.mp_color_primary)
         linePaint.strokeWidth = LANDMARK_STROKE_WIDTH
         linePaint.style = Paint.Style.STROKE
 
@@ -69,6 +81,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         pointPaint.color = Color.YELLOW
         pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
+
+        textPaint.color = Color.WHITE
+        textPaint.textSize = 40f
+        textPaint.textAlign = Paint.Align.LEFT
+    }
+
+    private fun getLineColor(angle: Double, expectedAngle: Double, range: Int): Int {
+        val deviation = abs(angle - expectedAngle).toFloat()
+        val maxDeviation = range
+        return ArgbEvaluator().evaluate(
+            (deviation / maxDeviation).toFloat(),
+            Color.RED,
+            Color.GREEN
+        ) as Int
     }
 
     override fun draw(canvas: Canvas) {
@@ -84,16 +110,22 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 }
 
                 // Calculate angle between landmarks 28, 26, 24
-                val angle = getAngle(landmark, 28, 26, 24)
-                val useRedPaint = (angle < 80 || angle > 100)
 
-                Log.d(TAG, "Angle: $angle")
+
+                val angle1 = getAngle(landmark, 28, 26, 24)
+                val useRedPaint1 = (angle1 < expAngle1- range || angle1 > expAngle1 + range)
+
+                val angle2 = getAngle(landmark, 27, 25, 23)
+                val useRedPaint2 = (angle2 < expAngle2 - range || angle2 >expAngle2 + range)
+
+                Log.d(TAG, "Angle: $angle1")
+                Log.d(TAG, "Angle: $angle2")
 
                 PoseLandmarker.POSE_LANDMARKS.forEach { poseLandmark ->
-                    val startX = poseLandmarkerResult.landmarks().get(0).get(poseLandmark!!.start()).x() * imageWidth * scaleFactor
-                    val startY = poseLandmarkerResult.landmarks().get(0).get(poseLandmark.start()).y() * imageHeight * scaleFactor
-                    val endX = poseLandmarkerResult.landmarks().get(0).get(poseLandmark.end()).x() * imageWidth * scaleFactor
-                    val endY = poseLandmarkerResult.landmarks().get(0).get(poseLandmark.end()).y() * imageHeight * scaleFactor
+                    val startX = poseLandmarkerResult.landmarks()[0][poseLandmark!!.start()].x() * imageWidth * scaleFactor
+                    val startY = poseLandmarkerResult.landmarks()[0][poseLandmark.start()].y() * imageHeight * scaleFactor
+                    val endX = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].x() * imageWidth * scaleFactor
+                    val endY = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].y() * imageHeight * scaleFactor
 
                     Log.d(TAG, "Angle: $poseLandmark.start()")
 
@@ -101,9 +133,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                         (poseLandmark.start() == 24 && poseLandmark.end() == 26) ||
                         (poseLandmark.start() == 28 && poseLandmark.end() == 24)
                     ) {
-                        Log.d(TAG, "Using red paint for line between ${poseLandmark.start()} and ${poseLandmark.end()}")
-                        canvas.drawLine(startX, startY, endX, endY, if (useRedPaint) redLinePaint else linePaint)
+                        canvas.drawText(String.format("%.1f", angle1), startX, startY, textPaint)
+                        linePaint.color= getLineColor(expAngle1, angle1, range)
+                        canvas.drawLine(startX, startY, endX, endY, if (useRedPaint1) redLinePaint else linePaint)
+                    }
+
+                    else if ((poseLandmark.start() == 25 && poseLandmark.end() == 27) ||
+                        (poseLandmark.start() == 23 && poseLandmark.end() == 25) ||
+                        (poseLandmark.start() == 27 && poseLandmark.end() == 23)
+                    ) {
+                        canvas.drawText(String.format("%.1f", angle2), startX, startY, textPaint)
+                        linePaint.color= getLineColor(expAngle2, angle2, range)
+                        canvas.drawLine(startX, startY, endX, endY, if (useRedPaint2) redLinePaint else linePaint)
                     } else {
+                        linePaint.color=Color.GREEN
                         canvas.drawLine(startX, startY, endX, endY, linePaint)
                     }
                 }
