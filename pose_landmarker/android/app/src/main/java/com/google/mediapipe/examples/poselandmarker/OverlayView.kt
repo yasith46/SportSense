@@ -50,6 +50,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var joint3 =0
     private var expectedAngle=0.0
     private var angle=0.0
+    private var radius=15f
 
 
 
@@ -72,7 +73,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     init {
         initPaints()
-        fetchAndStoreData("Sprint", "Technique1", "pos_set")
+        fetchAndStoreData("Sprint", "Technique1", "joints")
         addNewTechnique()
     }
 
@@ -136,8 +137,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         redLinePaint.strokeWidth = LANDMARK_STROKE_WIDTH
         redLinePaint.style = Paint.Style.STROKE
 
-        pointPaint.color = Color.YELLOW
-        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        pointPaint.color = Color.WHITE
+        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH+2f
         pointPaint.style = Paint.Style.FILL
 
         textPaint.color = Color.WHITE
@@ -214,12 +215,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ||
                                 (poseLandmark.start() == joint3 && poseLandmark.end() == joint1)) {
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
+
+
                             }
                         }
                         else if (angleSet.size ==3){
                             if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint1) ||
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ) {
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
+
+
                             }
                         }
 
@@ -229,12 +234,26 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
             // Draw all lines
             for (lineData in linesToDraw) {
+
                 if (lineData.angle != null) {
                     // Draw angle text
                     canvas.drawText(String.format("%.1f", lineData.angle), lineData.startX, lineData.startY, textPaint)
                     // Determine line color
                     linePaint.color = getLineColor(lineData.expectedAngle!!, lineData.angle, range)
                     canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, if (lineData.useRedPaint) redLinePaint else linePaint)
+                    canvas.drawCircle(
+                        lineData.startX ,
+                        lineData.startY ,
+                        radius,
+                        pointPaint)
+
+                    canvas.drawCircle(
+                        lineData.endX ,
+                        lineData.endY ,
+                        radius,
+                        pointPaint)
+
+
                 } else {
                     linePaint.color = Color.GREEN
                     canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, linePaint)
