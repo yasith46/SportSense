@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -38,6 +39,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
+    private var circlePaint = Paint()
+
     private var linePaint = Paint()
 
     private var scaleFactor: Float = 1f
@@ -123,6 +126,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results = null
         pointPaint.reset()
         linePaint.reset()
+        circlePaint.reset()
         invalidate()
         initPaints()
     }
@@ -138,13 +142,25 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         redLinePaint.style = Paint.Style.STROKE
 
         pointPaint.color = Color.WHITE
-        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH+2f
+        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
 
-        textPaint.color = Color.WHITE
-        textPaint.textSize = 40f
-        textPaint.textAlign = Paint.Align.LEFT
+        circlePaint.color = Color.WHITE
+        circlePaint.strokeWidth = LANDMARK_STROKE_WIDTH-5f
+        circlePaint.style = Paint.Style.STROKE
+
+        textPaint.apply {
+            color = Color.WHITE
+            textSize = 40f
+            textAlign = Paint.Align.RIGHT
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Example: Bold text
+            isAntiAlias = true // Smooth edges
+            // Optionally, add shadow
+            setShadowLayer(5f, 0f, 0f, Color.BLACK) // Example: Adds a black shadow
+        }
     }
+
+
 
     private fun getLineColor(angle: Double, expectedAngle: Double, range: Int): Int {
         val deviation = kotlin.math.abs(angle - expectedAngle).toFloat()
@@ -215,6 +231,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ||
                                 (poseLandmark.start() == joint3 && poseLandmark.end() == joint1)) {
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
+                                if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint3)  ) {
+                                    canvas.drawText(String.format("%.1f", angle), startX-30f, startY, textPaint)}
 
 
                             }
@@ -223,6 +241,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                             if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint1) ||
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ) {
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
+                                canvas.drawText(String.format("%.1f", angle), (startX+endX)/2-30f, (startY+endY)/2, textPaint)
 
 
                             }
@@ -237,15 +256,27 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                 if (lineData.angle != null) {
                     // Draw angle text
-                    canvas.drawText(String.format("%.1f", lineData.angle), lineData.startX, lineData.startY, textPaint)
+
                     // Determine line color
                     linePaint.color = getLineColor(lineData.expectedAngle!!, lineData.angle, range)
                     canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, if (lineData.useRedPaint) redLinePaint else linePaint)
                     canvas.drawCircle(
                         lineData.startX ,
                         lineData.startY ,
+                        radius+10f,
+                        circlePaint)
+
+                    canvas.drawCircle(
+                        lineData.startX ,
+                        lineData.startY ,
                         radius,
                         pointPaint)
+
+                    canvas.drawCircle(
+                        lineData.endX ,
+                        lineData.endY ,
+                        radius+10f,
+                        circlePaint)
 
                     canvas.drawCircle(
                         lineData.endX ,
