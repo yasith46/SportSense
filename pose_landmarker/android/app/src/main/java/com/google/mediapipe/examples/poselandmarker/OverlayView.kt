@@ -31,7 +31,6 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlin.math.max
 import kotlin.math.min
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import org.checkerframework.checker.units.qual.Length
 import kotlin.math.atan2
 
 class OverlayView(context: Context?, attrs: AttributeSet?) :
@@ -58,6 +57,23 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
+    private val tickPaint = Paint().apply {
+        color = Color.GREEN  // Color of the tick mark
+        strokeWidth = 50f    // Stroke width of the tick mark
+        style = Paint.Style.STROKE  // Draw only the outline
+        strokeCap = Paint.Cap.ROUND  // Rounded stroke ends for a nicer tick appearance
+        isAntiAlias = true   // Smooth edges
+        // Shadow layer for a modern look
+        setShadowLayer(10f, 0f, 0f, Color.BLACK)
+    }
+
+
+
+
+
+
+
+
     private var textPaint = Paint().apply {
         color = Color.WHITE
         textSize = 40f
@@ -75,10 +91,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     init {
+
         initPaints()
-        fetchAndStoreData("Sprint", "Technique1", "joints")
+        fetchAndStoreData("Workout", "Squat", "down")
         addNewTechnique()
+
     }
+
+
 
     private fun fetchAndStoreData(sportName: String, techniqueName: String, subcollectionName: String) {
         FirebaseManager.fetchJointsAndAngles(sportName, techniqueName, subcollectionName) { joints ->
@@ -133,7 +153,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     private fun initPaints() {
         linePaint.color = Color.GREEN
-            //ContextCompat.getColor(context!!, R.color.mp_color_primary)
+        //ContextCompat.getColor(context!!, R.color.mp_color_primary)
         linePaint.strokeWidth = LANDMARK_STROKE_WIDTH
         linePaint.style = Paint.Style.STROKE
 
@@ -179,6 +199,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
+            var allAnglesValid = false
+            var set1isInExpectedRange = false
+            var set2isInExpectedRange = false
 
             // Process landmarks and angles
             for (landmark in poseLandmarkerResult.landmarks()) {
@@ -193,8 +216,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 //                }
 
                 // Calculate angles and determine line colors
-                for (angleSet in allJoints) {
+                for ((index, angleSet) in allJoints.withIndex()) {
                     val aSize= angleSet.size
+
+                    Log.d(TAG, "index: $index")
                     Log.d(TAG, "brooo: $aSize")
                     if (angleSet.size ==4) {
                         joint1 = angleSet["joint1"] as Int
@@ -211,10 +236,25 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                     }
 
+                    if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
+                    } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
+                    } else if ((index == 2)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
+                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
+                    }
+
+
+
+
 
 
 
                     val useRedPaint = (angle < expectedAngle - range || angle > expectedAngle + range)
+
+
+
+                    if (set1isInExpectedRange && set2isInExpectedRange ) {
+                        allAnglesValid = true
+                    }
 
                     Log.d(TAG, "Angle: $angle")
 
@@ -224,6 +264,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                         val startY = poseLandmarkerResult.landmarks()[0][poseLandmark.start()].y() * imageHeight * scaleFactor
                         val endX = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].x() * imageWidth * scaleFactor
                         val endY = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].y() * imageHeight * scaleFactor
+
+
+
+
 
                         if (angleSet.size ==4){
 
@@ -243,6 +287,11 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
                                 canvas.drawText(String.format("%.1f", angle), (startX+endX)/2-30f, (startY+endY)/2, textPaint)
 
+                                // Draw a tick mark (a simple check mark shape)
+//                                if (isInExpectedRange) {
+//                                    // Draw tick mark if angle is within range
+//                                    drawTickMark(canvas, startX, startY, endX, endY)
+ //                               }
 
                             }
                         }
@@ -290,6 +339,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, linePaint)
                 }
             }
+            if (allAnglesValid) {
+                drawTickMark(canvas)
+            }
         }
     }
 
@@ -303,6 +355,49 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         val expectedAngle: Double?,
         val useRedPaint: Boolean
     )
+
+    private fun isAngleInExpectedRange(angle: Double, expectedAngle: Double, range: Int): Boolean {
+        return angle >= (expectedAngle - range) && angle <= (expectedAngle + range)
+    }
+
+    private fun drawTickMark(canvas: Canvas) {
+        // Example implementation of drawing a tick mark
+        val width = width.toFloat()
+        val height = height.toFloat()
+
+        val tStartX = 0.25f * width
+        val tStartY = 0.6f * height
+        val tMidX = 0.45f * width
+        val tMidY = 0.8f * height
+        val tEndX = 0.75f * width
+        val tEndY = 0.4f * height
+
+        canvas.drawLine(tStartX, tStartY, tMidX, tMidY, tickPaint)
+        canvas.drawLine(tMidX, tMidY, tEndX, tEndY, tickPaint)
+    }
+
+
+
+
+
+
+    private fun drawTickMark(canvas: Canvas, startX: Float, startY: Float, endX: Float, endY: Float) {
+        // Draw a tick mark (a simple check mark shape)
+        val width = width.toFloat()
+        val height = height.toFloat()
+
+        // Adjust tick mark positions and sizes as needed
+        val tStartX = 0.25f * width
+        val tStartY = 0.6f * height
+        val tMidX = 0.45f * width
+        val tMidY = 0.8f * height
+        val tEndX = 0.75f * width
+        val tEndY = 0.4f * height
+
+        // Draw the tick mark
+        canvas.drawLine(tStartX, tStartY, tMidX, tMidY, tickPaint)
+        canvas.drawLine(tMidX, tMidY, tEndX, tEndY, tickPaint)
+    }
 
 
     // Helper data class to store line information
@@ -355,6 +450,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
+
+
+
     fun setResults(
         poseLandmarkerResults: PoseLandmarkerResult,
         imageHeight: Int,
@@ -384,4 +482,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     companion object {
         private const val LANDMARK_STROKE_WIDTH = 12F
     }
+
+
 }
