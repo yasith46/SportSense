@@ -236,10 +236,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                     }
 
-                    if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
-                    } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
-                    } else if ((index == 2)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
-                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 20)
+                    if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
+                    } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
+                    } else if ((index == 2)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
+                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
                     }
 
 
