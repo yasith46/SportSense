@@ -27,6 +27,7 @@ import com.google.firebase.FirebaseApp
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.Companion.TAG
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel : MainViewModel by viewModels()
@@ -37,6 +38,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
+
+        val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "No message"
+
+        // Update the OverlayView with the message
+        OverlayView.updateMessage(message)
+
+
+
 
 
 

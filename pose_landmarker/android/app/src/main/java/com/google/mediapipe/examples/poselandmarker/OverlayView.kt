@@ -53,6 +53,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var expectedAngle=0.0
     private var angle=0.0
     private var radius=15f
+    private var sport = getSport()
 
 
 
@@ -91,6 +92,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     init {
+
+        Log.d(TAG, "index: brpppppppppppppppjksdjfkajsf")
 
         initPaints()
         fetchAndStoreData("Workout", "Squat", "down")
@@ -195,6 +198,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
+
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
@@ -221,6 +225,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                     Log.d(TAG, "index: $index")
                     Log.d(TAG, "brooo: $aSize")
+                    Log.d(TAG, "index: $sport")
                     if (angleSet.size ==4) {
                         joint1 = angleSet["joint1"] as Int
                         joint2 = angleSet["joint2"] as Int
@@ -480,8 +485,21 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     companion object {
+
+        private var sport: String = ""
+        fun updateMessage(s: String) {
+            sport = s
+
+        }
+
+        fun getSport(): String {
+            return sport
+        }
+
         private const val LANDMARK_STROKE_WIDTH = 12F
     }
+
+
 
 
 }
