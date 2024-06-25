@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     ~ Copyright 2023 The TensorFlow Authors. All Rights Reserved.
     ~
     ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar" >
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/mp_color_primary</item>
         <item name="colorPrimaryVariant">@color/mp_color_primary_variant</item>
@@ -37,5 +36,10 @@
 
     <style name="AppThemeProgressStyle">
         <item name="colorAccent">@color/mp_color_primary_variant</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 </resources>
