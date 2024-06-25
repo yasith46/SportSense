@@ -40,9 +40,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainBinding.root)
 
         val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "No message"
+        val technique = intent.getStringExtra("EXTRA_TECHNIQUE") ?: "No message"
+
 
         // Update the OverlayView with the message
         OverlayView.updateMessage(message)
+        OverlayView.updateTechnique(technique)
+
 
 
 

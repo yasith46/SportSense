@@ -5,8 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
 
-private var sport= "sprint"
+private var sport= "Sprint"
 
 class MainActivity2 : AppCompatActivity() {
 
@@ -16,7 +17,7 @@ class MainActivity2 : AppCompatActivity() {
 
         val buttonBB = findViewById<Button>(R.id.button5)
         buttonBB.setOnClickListener {
-            sport= "cricket"
+            sport= "Sprint"
 
             callActivity()
         }
@@ -26,7 +27,7 @@ class MainActivity2 : AppCompatActivity() {
 
 
 
-        val intent = Intent(this, MainActivity::class.java).also {
+        val intent = Intent(this, ActivitySprint::class.java).also {
             it.putExtra("EXTRA_MESSAGE", sport)
             startActivity(it)
         }
