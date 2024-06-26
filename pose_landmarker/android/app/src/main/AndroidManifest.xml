@@ -15,6 +15,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".techniques.ActivityWorkout"
+            android:exported="false" />
+        <activity
             android:name=".techniques.ActivitySprint"
             android:exported="false" />
         <activity
