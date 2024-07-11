@@ -32,13 +32,17 @@ import kotlin.math.max
 import kotlin.math.min
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import kotlin.math.atan2
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+import android.media.MediaPlayer
 
-class OverlayView(context: Context?, attrs: AttributeSet?) :
-    View(context, attrs) {
+
+class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
 
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
     private var circlePaint = Paint()
+
 
     private var linePaint = Paint()
 
@@ -50,10 +54,24 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var joint1 =0
     private var joint2 =0
     private var joint3 =0
+    private var limb = "no"
     private var expectedAngle=0.0
     private var angle=0.0
     private var radius=15f
-    private var sport = getSport()
+
+
+    private var tts: TextToSpeech? = null
+    private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
+
+    private var paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 70f
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Bold text
+        isAntiAlias = true // Smooth edges
+        setShadowLayer(5f, 0f, 0f, Color.BLACK) // Adds a black shadow
+    }
+
 
 
 
@@ -83,6 +101,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     private val allJoints = mutableListOf<Map<String, Any>>()
 
+    private fun playSound() {
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
+    }
+
 
 
 
@@ -92,13 +116,60 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     init {
+        tts = TextToSpeech(context, this)
 
-        Log.d(TAG, "index: brpppppppppppppppjksdjfkajsf")
+        sport= getSport()
+        technique= getTechnique()
 
         initPaints()
-        fetchAndStoreData("Workout", "Squat", "down")
+        fetchAndStoreData(sport, technique, "down")
         addNewTechnique()
 
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "Language not supported")
+            }
+        } else {
+            Log.e(TAG, "Initialization failed")
+        }
+    }
+
+    // Define what happens next after speech is completed
+    private fun continueProcessing(text: String) {
+        // Process continuation logic here after speech is completed
+        Log.d(TAG, "Speech completed: $text")
+        // Continue with your processing logic
+    }
+
+    private fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        waitForSpeechToFinish(text)
+    }
+
+    private fun waitForSpeechToFinish(text: String) {
+        handler.postDelayed({
+            continueProcessing(text)
+        }, calculateSpeechDuration(text))
+    }
+
+    private fun calculateSpeechDuration(text: String): Long {
+        // Estimate speech duration based on text length or use a fixed delay
+        return (text.length * 100).toLong() // Example: 100 milliseconds per character
+    }
+
+    fun shutdownTTS() {
+        tts?.stop()
+        tts?.shutdown()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mediaPlayer.release()
+        shutdownTTS()
     }
 
 
@@ -110,11 +181,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 val joint1 = (joint["joint1"] as Long).toInt()
                 val joint2 = (joint["joint2"] as Long).toInt()
                 val expectedAngle = joint["expectedAngle"] as Long
+                val limb = joint["limb"] as String
 
                 val jointMap = mutableMapOf<String, Any>(
                     "joint1" to joint1,
                     "joint2" to joint2,
-                    "expectedAngle" to expectedAngle
+                    "expectedAngle" to expectedAngle,
+                    "limb" to limb
+
                 )
 
                 if (joint.containsKey("joint3")) {
@@ -200,12 +274,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     override fun draw(canvas: Canvas) {
+        //Thread.sleep(delayInMillis)
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
             var set1isInExpectedRange = false
             var set2isInExpectedRange = false
+            var set3isInExpectedRange = true
 
             // Process landmarks and angles
             for (landmark in poseLandmarkerResult.landmarks()) {
@@ -226,25 +302,51 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     Log.d(TAG, "index: $index")
                     Log.d(TAG, "brooo: $aSize")
                     Log.d(TAG, "index: $sport")
-                    if (angleSet.size ==4) {
+                    Log.d(TAG, "index: $technique")
+
+                    if (angleSet.size ==5) {
                         joint1 = angleSet["joint1"] as Int
                         joint2 = angleSet["joint2"] as Int
                         joint3 = angleSet["joint3"] as Int
+                        limb = angleSet["limb"] as String
                         expectedAngle = (angleSet["expectedAngle"] as Long).toDouble()
                         angle = getAngle(landmark, joint1, joint2, joint3)
+
                     }
                     else {
                         joint1 = angleSet["joint1"] as Int
                         joint2 = angleSet["joint2"] as Int
+                        limb = angleSet["limb"] as String
                         expectedAngle = (angleSet["expectedAngle"] as Long).toDouble()
                         angle = getAngle(landmark, joint1, joint2)
 
                     }
 
-                    if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
-                    } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
-                    } else if ((index == 2)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
-                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 15)
+                    if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
+                        if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")
+                            }
+                            canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f, paint)
+                        }
+                        else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
+                            canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f, paint)
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
+                        }
+                    } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
+                        if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")}
+                            canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f-100f, paint)
+                        }
+                        else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
+                            canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f-100f, paint)
+                        }
+                    } else if ((index == 2)) { set3isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
+                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
                     }
 
 
@@ -257,7 +359,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
-                    if (set1isInExpectedRange && set2isInExpectedRange ) {
+                    if (set1isInExpectedRange && set2isInExpectedRange && set3isInExpectedRange) {
                         allAnglesValid = true
                     }
 
@@ -274,7 +376,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
 
-                        if (angleSet.size ==4){
+                        if (angleSet.size ==5){
 
                             if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint3) ||
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ||
@@ -286,7 +388,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                             }
                         }
-                        else if (angleSet.size ==3){
+                        else if (angleSet.size ==4){
                             if ((poseLandmark.start() == joint2 && poseLandmark.end() == joint1) ||
                                 (poseLandmark.start() == joint1 && poseLandmark.end() == joint2) ) {
                                 linesToDraw.add(LineData(startX, startY, endX, endY, angle, expectedAngle, useRedPaint))
@@ -345,8 +447,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 }
             }
             if (allAnglesValid) {
+
                 drawTickMark(canvas)
+                if (tts?.isSpeaking == false) {
+                    speak("Excellent! Your posture is Correct")}
+                playSound()
+
             }
+
+
         }
     }
 
@@ -364,6 +473,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private fun isAngleInExpectedRange(angle: Double, expectedAngle: Double, range: Int): Boolean {
         return angle >= (expectedAngle - range) && angle <= (expectedAngle + range)
     }
+
+    private fun isAngleLessThanExpectedRange(angle: Double, expectedAngle: Double, range: Int): Boolean {
+        return angle <= (expectedAngle - range)
+    }
+
+    private fun isAngleGreaterThanExpectedRange(angle: Double, expectedAngle: Double, range: Int): Boolean {
+        return angle >= (expectedAngle + range)
+    }
+
+
 
     private fun drawTickMark(canvas: Canvas) {
         // Example implementation of drawing a tick mark
@@ -487,6 +606,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     companion object {
 
         private var sport: String = ""
+        private var technique: String = ""
+
         fun updateMessage(s: String) {
             sport = s
 
@@ -494,6 +615,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
         fun getSport(): String {
             return sport
+        }
+
+        fun updateTechnique(t: String) {
+            technique = t
+
+        }
+
+        fun getTechnique(): String {
+            return technique
         }
 
         private const val LANDMARK_STROKE_WIDTH = 12F
