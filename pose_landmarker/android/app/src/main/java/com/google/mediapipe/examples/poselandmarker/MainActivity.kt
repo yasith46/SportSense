@@ -26,11 +26,15 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.firebase.FirebaseApp
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.Companion.TAG
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
+import android.media.MediaPlayer
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel : MainViewModel by viewModels()
+    private lateinit var mediaPlayer: MediaPlayer
+
+
 
 
 
@@ -41,6 +45,8 @@ class MainActivity : AppCompatActivity() {
 
         val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "No message"
         val technique = intent.getStringExtra("EXTRA_TECHNIQUE") ?: "No message"
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.sound)
 
 
         // Update the OverlayView with the message
@@ -71,6 +77,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         finish()
+    }
+
+    private fun playSound() {
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
     }
 
 

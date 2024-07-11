@@ -32,13 +32,17 @@ import kotlin.math.max
 import kotlin.math.min
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import kotlin.math.atan2
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+import android.media.MediaPlayer
 
-class OverlayView(context: Context?, attrs: AttributeSet?) :
-    View(context, attrs) {
+
+class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
 
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
     private var circlePaint = Paint()
+
 
     private var linePaint = Paint()
 
@@ -54,6 +58,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var expectedAngle=0.0
     private var angle=0.0
     private var radius=15f
+
+
+    private var tts: TextToSpeech? = null
+    private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
 
     private var paint = Paint().apply {
         color = Color.WHITE
@@ -93,6 +101,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     private val allJoints = mutableListOf<Map<String, Any>>()
 
+    private fun playSound() {
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
+    }
+
 
 
 
@@ -102,6 +116,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     init {
+        tts = TextToSpeech(context, this)
 
         sport= getSport()
         technique= getTechnique()
@@ -110,6 +125,51 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         fetchAndStoreData(sport, technique, "down")
         addNewTechnique()
 
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "Language not supported")
+            }
+        } else {
+            Log.e(TAG, "Initialization failed")
+        }
+    }
+
+    // Define what happens next after speech is completed
+    private fun continueProcessing(text: String) {
+        // Process continuation logic here after speech is completed
+        Log.d(TAG, "Speech completed: $text")
+        // Continue with your processing logic
+    }
+
+    private fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        waitForSpeechToFinish(text)
+    }
+
+    private fun waitForSpeechToFinish(text: String) {
+        handler.postDelayed({
+            continueProcessing(text)
+        }, calculateSpeechDuration(text))
+    }
+
+    private fun calculateSpeechDuration(text: String): Long {
+        // Estimate speech duration based on text length or use a fixed delay
+        return (text.length * 100).toLong() // Example: 100 milliseconds per character
+    }
+
+    fun shutdownTTS() {
+        tts?.stop()
+        tts?.shutdown()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mediaPlayer.release()
+        shutdownTTS()
     }
 
 
@@ -214,6 +274,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
 
     override fun draw(canvas: Canvas) {
+        //Thread.sleep(delayInMillis)
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
@@ -263,24 +324,26 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
                     if (index == 0) { set1isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
                         if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")
+                            }
                             canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f, paint)
-
-
                         }
                         else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
                             canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f, paint)
-
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
                         }
-
-
                     } else if ((index == 1)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
                         if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")}
                             canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f-100f, paint)
-
                         }
                         else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
                             canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f-100f, paint)
-
                         }
                     } else if ((index == 2)) { set3isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
                     } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
@@ -384,8 +447,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 }
             }
             if (allAnglesValid) {
+
                 drawTickMark(canvas)
+                if (tts?.isSpeaking == false) {
+                    speak("Excellent! Your posture is Correct")}
+                playSound()
+
             }
+
+
         }
     }
 
