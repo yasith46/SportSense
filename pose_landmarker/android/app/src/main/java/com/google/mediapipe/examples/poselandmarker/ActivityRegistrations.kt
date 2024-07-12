@@ -1,5 +1,6 @@
 package com.google.mediapipe.examples.poselandmarker
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -13,6 +14,7 @@ class ActivityRegistrations : AppCompatActivity() {
     private lateinit var editTextPassword: TextInputEditText
     private lateinit var buttonRegister: Button
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var buttonAccount: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +27,18 @@ class ActivityRegistrations : AppCompatActivity() {
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextPassword = findViewById(R.id.editTextPassword)
         buttonRegister = findViewById(R.id.buttonRegister)
+        buttonAccount = findViewById(R.id.buttonAccount)
+
+        buttonAccount.setOnClickListener {
+            val intent = Intent(this, ActivityLogin::class.java)
+            startActivity(intent)
+        }
 
         // Set click listener for register button
         buttonRegister.setOnClickListener {
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString()
+
 
             // Validate email and password
             if (email.isEmpty() || password.isEmpty()) {
@@ -37,12 +46,17 @@ class ActivityRegistrations : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+
             // Register user with Firebase Authentication
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         // Registration success
                         Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity2::class.java)
+                        startActivity(intent)
+                        finish()
+
 
                         // Optionally, you can add further actions here like navigating to the next activity
                     } else {

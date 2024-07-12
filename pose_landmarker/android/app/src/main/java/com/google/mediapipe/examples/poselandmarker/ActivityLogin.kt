@@ -14,6 +14,8 @@ class ActivityLogin : AppCompatActivity() {
     private lateinit var editTextPassword: TextInputEditText
     private lateinit var buttonLogin: Button
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var buttonAccount2: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +28,12 @@ class ActivityLogin : AppCompatActivity() {
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextPassword = findViewById(R.id.editTextPassword)
         buttonLogin = findViewById(R.id.buttonLogin)
+        buttonAccount2 = findViewById(R.id.buttonAccount2)
+
+        buttonAccount2.setOnClickListener {
+            val intent = Intent(this, ActivityRegistrations::class.java)
+            startActivity(intent)
+        }
 
         // Set click listener for login button
         buttonLogin.setOnClickListener {
@@ -46,7 +54,7 @@ class ActivityLogin : AppCompatActivity() {
                         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
 
                         // Example: Navigate to MainActivity after successful login
-                        val intent = Intent(this, MainActivity::class.java)
+                        val intent = Intent(this, MainActivity2::class.java)
                         startActivity(intent)
                         finish() // Close the login activity so user can't go back to it
                     } else {
