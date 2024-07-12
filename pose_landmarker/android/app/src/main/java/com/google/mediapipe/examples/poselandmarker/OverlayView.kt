@@ -538,7 +538,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
                 }
                 else if (tts?.isSpeaking == false && currentPositionIndex== positions.size){
-                    speak("oya nan supiriiii kollek")
+                    speak("Well done! Try again or try out a new technique.")
                     playSound()
                     correct_count = 0
 

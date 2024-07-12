@@ -16,24 +16,28 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".ActivityVideo"
+            android:name=".ActivityLogin"
             android:exported="false" />
         <activity
-            android:name=".techniques.ActivityWorkout"
-            android:exported="false" />
-        <activity
-            android:name=".techniques.ActivitySprint"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity2"
+            android:name=".ActivityRegistrations"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            />
         </activity>
+        <activity
+            android:name=".ActivityVideo"
+            android:exported="false" />
+
+        <activity
+            android:name=".techniques.ActivitySprint"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="true"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
