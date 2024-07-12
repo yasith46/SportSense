@@ -9,18 +9,30 @@
     tools:context=".MainActivity2"
     tools:visibility="visible">
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="Select the sport you want to practice"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/button5"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="300dp"
         android:layout_height="100dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="150dp"
         android:layout_marginBottom="627dp"
         android:text="Sprint"
         android:paddingHorizontal="10dp"
         android:paddingVertical="10dp"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
