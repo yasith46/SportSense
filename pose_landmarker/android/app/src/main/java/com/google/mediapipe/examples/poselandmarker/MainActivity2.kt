@@ -33,20 +33,32 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     private fun callActivity() {
-        val targetActivity = when (activity) {
-            "ActivitySprint" -> ActivitySprint::class.java
-            "ActivityWorkout" -> ActivityWorkout::class.java
-            else -> null
-        }
 
-        targetActivity?.let {
-            val intent = Intent(this, it).apply {
-                putExtra("EXTRA_MESSAGE", sport)
-            }
-            startActivity(intent)
-        } ?: run {
-            // Handle the case where the activity is not found
-            Log.e("MainActivity2", "Activity not found")
+
+        Intent(this, ActivitySprint::class.java).also {
+            it.putExtra("EXTRA_MESSAGE", sport
+            )
+
+
+            startActivity(it)
         }
     }
+
+//    private fun callActivity() {
+//        val targetActivity = when (activity) {
+//            "ActivityWorkout" -> ActivitySprint::class.java
+//            "ActivitySprint" -> ActivitySprint::class.java
+//            else -> null
+//        }
+//
+//        targetActivity?.let {
+//            val intent = Intent(this, it).apply {
+//                putExtra("EXTRA_MESSAGE", sport)
+//            }
+//            startActivity(intent)
+//        } ?: run {
+//            // Handle the case where the activity is not found
+//            Log.e("MainActivity2", "Activity not found")
+//        }
+//    }
 }

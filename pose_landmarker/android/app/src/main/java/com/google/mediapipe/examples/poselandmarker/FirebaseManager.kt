@@ -35,5 +35,14 @@ object FirebaseManager {
             onComplete(emptyList())
         }
     }
+    fun fetchCollectionNames(sportName: String, onComplete: (List<String>) -> Unit) {
+        db.collection(sportName).get().addOnSuccessListener { result ->
+            val collectionNames = result.documents.map { it.id }
+            onComplete(collectionNames)
+        }.addOnFailureListener { e ->
+            Log.w("Firestore", "Error getting collection names", e)
+            onComplete(emptyList())
+        }
+    }
 
 }
