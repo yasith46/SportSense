@@ -52,6 +52,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var currentPositionIndex = 0
     private var positions = mutableListOf<String>()
 
+    private var correct_count = 0
+    private var currentPosition = "no"
+    private var nextposition = "no"
+
 
 
 
@@ -169,12 +173,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private fun fetchAndProcessNextPosition() {
         if (currentPositionIndex < positions.size) {
+            currentPosition=positions[currentPositionIndex]
 
 
 
             // Process this position
             fetchAndStoreData(sport, technique, positions[currentPositionIndex])
             currentPositionIndex++
+
+
 
         } else {
             Log.d(TAG, "All positions processed")
@@ -320,6 +327,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     override fun draw(canvas: Canvas) {
         //Thread.sleep(delayInMillis)
         super.draw(canvas)
+        canvas.drawText(currentPosition, width / 2f, height*1f/6f, paint)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
@@ -491,14 +499,37 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 }
             }
             if (allAnglesValid) {
+                correct_count++
 
-                drawTickMark(canvas)
-                if (tts?.isSpeaking == false) {
-                    speak("Excellent! Your posture is Correct")}
-                playSound()
-                fetchAndProcessNextPosition()
+//                drawTickMark(canvas)
+//                if (tts?.isSpeaking == false) {
+//                    speak("Excellent! Your posture is Correct")}
+//                playSound()
+//                fetchAndProcessNextPosition()
 
             }
+            if (correct_count > 10 ) {
+                drawTickMark(canvas)
+
+                if (tts?.isSpeaking == false && currentPositionIndex!= positions.size) {
+                   speak("you are good with the $currentPosition, now try next ")
+                    playSound()
+                    fetchAndProcessNextPosition()
+                    correct_count = 0
+                }
+                else if (tts?.isSpeaking == false && currentPositionIndex== positions.size){
+                    speak("oya nan supiriiii kollek")
+                    playSound()
+
+                }
+
+//                if (tts?.isSpeaking == false) {
+//                    playSound()
+//                    fetchAndProcessNextPosition()
+//                    correct_count = 0}
+
+            }
+
 
 
         }
