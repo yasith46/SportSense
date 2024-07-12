@@ -35,6 +35,9 @@ import kotlin.math.atan2
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 import android.media.MediaPlayer
+import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchCollections
+import kotlin.concurrent.thread
+
 
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
@@ -45,6 +48,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
     private var linePaint = Paint()
+
+    private var currentPositionIndex = 0
+    private var positions = mutableListOf<String>()
+
+
+
 
     private var scaleFactor: Float = 1f
     private var imageWidth: Int = 1
@@ -62,6 +71,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
+
+
 
     private var paint = Paint().apply {
         color = Color.WHITE
@@ -122,8 +133,26 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         technique= getTechnique()
 
         initPaints()
-        fetchAndStoreData(sport, technique, "down")
-        addNewTechnique()
+
+        //addNewTechnique()
+
+        fetchCollections(sport, technique) { collections ->
+            val size= collections.size
+            // Handle the collections list here
+            for (collection in collections) {
+                if (collection != "videoURL") {
+                    positions.add(collection)
+                }
+                // Do something with each collection name
+            }
+            Log.d(TAG, "Collection name: $positions")
+            Log.d(TAG, "ko bro: $sport $technique $positions ")
+            fetchAndProcessNextPosition()
+
+
+        }
+
+
 
     }
 
@@ -135,6 +164,21 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             }
         } else {
             Log.e(TAG, "Initialization failed")
+        }
+    }
+
+    private fun fetchAndProcessNextPosition() {
+        if (currentPositionIndex < positions.size) {
+
+
+
+            // Process this position
+            fetchAndStoreData(sport, technique, positions[currentPositionIndex])
+            currentPositionIndex++
+
+        } else {
+            Log.d(TAG, "All positions processed")
+            // Handle completion or looping if needed
         }
     }
 
@@ -279,8 +323,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
-            var set1isInExpectedRange = false
-            var set2isInExpectedRange = false
+            var set1isInExpectedRange = true
+            var set2isInExpectedRange = true
             var set3isInExpectedRange = true
 
             // Process landmarks and angles
@@ -452,6 +496,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 if (tts?.isSpeaking == false) {
                     speak("Excellent! Your posture is Correct")}
                 playSound()
+                fetchAndProcessNextPosition()
 
             }
 
