@@ -36,6 +36,8 @@ import android.speech.tts.TextToSpeech
 import java.util.Locale
 import android.media.MediaPlayer
 import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchCollections
+
+
 import kotlin.concurrent.thread
 
 
@@ -54,7 +56,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private var correct_count = 0
     private var currentPosition = "no"
-    private var nextposition = "no"
+    private var nextPosition = "no"
+
+    private var status = false
 
 
 
@@ -73,6 +77,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var radius=15f
 
 
+
+
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
 
@@ -81,6 +87,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var paint = Paint().apply {
         color = Color.WHITE
         textSize = 70f
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Bold text
+        isAntiAlias = true // Smooth edges
+        setShadowLayer(5f, 0f, 0f, Color.BLACK) // Adds a black shadow
+    }
+
+    private var paintPos = Paint().apply {
+        color = Color.parseColor("#007F8B")
+        textSize = 100f
         textAlign = Paint.Align.CENTER
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Bold text
         isAntiAlias = true // Smooth edges
@@ -131,6 +146,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
     init {
+
         tts = TextToSpeech(context, this)
 
         sport= getSport()
@@ -174,6 +190,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private fun fetchAndProcessNextPosition() {
         if (currentPositionIndex < positions.size) {
             currentPosition=positions[currentPositionIndex]
+
+            if (currentPositionIndex + 1 < positions.size) {
+                nextPosition = positions[currentPositionIndex + 1]}
 
 
 
@@ -327,7 +346,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     override fun draw(canvas: Canvas) {
         //Thread.sleep(delayInMillis)
         super.draw(canvas)
-        canvas.drawText(currentPosition, width / 2f, height*1f/6f, paint)
+        canvas.drawText("Position: $currentPosition", width / 2f, height*1f/6f, paintPos)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
@@ -512,14 +531,17 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 drawTickMark(canvas)
 
                 if (tts?.isSpeaking == false && currentPositionIndex!= positions.size) {
-                   speak("you are good with the $currentPosition, now try next ")
+                   speak("you are good with the $currentPosition, now try $nextPosition ")
                     playSound()
                     fetchAndProcessNextPosition()
                     correct_count = 0
+
                 }
                 else if (tts?.isSpeaking == false && currentPositionIndex== positions.size){
                     speak("oya nan supiriiii kollek")
                     playSound()
+                    correct_count = 0
+
 
                 }
 
@@ -683,6 +705,11 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         private var sport: String = ""
         private var technique: String = ""
+
+
+
+
+
 
         fun updateMessage(s: String) {
             sport = s

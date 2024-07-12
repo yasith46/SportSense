@@ -16,6 +16,7 @@
 
 package com.google.mediapipe.examples.poselandmarker
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -27,12 +28,20 @@ import com.google.firebase.FirebaseApp
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.Companion.TAG
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
 import android.media.MediaPlayer
+import android.view.View
+import android.widget.Button
+
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel : MainViewModel by viewModels()
     private lateinit var mediaPlayer: MediaPlayer
+
+    private lateinit var button1: Button
+    private lateinit var button2: Button
+
+
 
 
 
@@ -43,8 +52,25 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
+
+
+
+
         val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "No message"
         val technique = intent.getStringExtra("EXTRA_TECHNIQUE") ?: "No message"
+
+        button1 = findViewById(R.id.button1)
+        button2 = findViewById(R.id.button2)
+
+        button1.setOnClickListener {
+            Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
+        button2.setOnClickListener {
+            val intent = Intent(this, MainActivity2::class.java)
+            startActivity(intent)
+        }
 
         mediaPlayer = MediaPlayer.create(this, R.raw.sound)
 
@@ -70,7 +96,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
     }
 
 
@@ -91,6 +116,8 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer.release()
         }
     }
+
+
 
 
 
