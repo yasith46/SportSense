@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import com.google.mediapipe.examples.poselandmarker.ActivityVideo
 import com.google.mediapipe.examples.poselandmarker.MainActivity
 import com.google.mediapipe.examples.poselandmarker.R
 
@@ -25,7 +26,7 @@ class ActivityWorkout : AppCompatActivity() {
             callActivity()
         }
         buttonD.setOnClickListener {
-            technique = "Down"
+            technique = "Push Up"
             callActivity()
         }
     }
@@ -34,7 +35,7 @@ class ActivityWorkout : AppCompatActivity() {
 
 
 
-        val intent = Intent(this, MainActivity::class.java).also {
+        val intent = Intent(this, ActivityVideo::class.java).also {
             it.putExtra("EXTRA_TECHNIQUE", technique)
             it.putExtra("EXTRA_MESSAGE", sport)
 

@@ -35,6 +35,8 @@ import kotlin.math.atan2
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 import android.media.MediaPlayer
+import kotlin.concurrent.thread
+
 
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
@@ -122,7 +124,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         technique= getTechnique()
 
         initPaints()
-        fetchAndStoreData(sport, technique, "down")
+        fetchAndStoreData(sport, technique, "up")
         addNewTechnique()
 
     }
@@ -452,6 +454,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                 if (tts?.isSpeaking == false) {
                     speak("Excellent! Your posture is Correct")}
                 playSound()
+                Thread.sleep(1000)
+                fetchAndStoreData(sport, technique, "down")
 
             }
 
