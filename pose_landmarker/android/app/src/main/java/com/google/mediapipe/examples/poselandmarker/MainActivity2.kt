@@ -3,10 +3,8 @@ package com.google.mediapipe.examples.poselandmarker
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
-import com.google.mediapipe.examples.poselandmarker.techniques.ActivityWorkout
 
 private var sport= "Sprint"
 private var activity= "no"
@@ -20,13 +18,13 @@ class MainActivity2 : AppCompatActivity() {
         val buttonS = findViewById<Button>(R.id.button5)
         buttonS.setOnClickListener {
             sport= "Sprint"
-            activity = "ActivitySprint"
+            //activity = "ActivitySprint"
             callActivity()
         }
         val buttonW = findViewById<Button>(R.id.button7)
         buttonW.setOnClickListener {
             sport= "Workout"
-            activity = "ActivityWorkout"
+            //activity = "ActivityWorkout"
 
             callActivity()
         }

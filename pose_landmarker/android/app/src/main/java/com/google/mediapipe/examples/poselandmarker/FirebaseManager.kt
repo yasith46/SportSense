@@ -45,4 +45,42 @@ object FirebaseManager {
         }
     }
 
+    fun fetchVideoURL(sportName: String, techniqueName: String, onComplete: (String?) -> Unit) {
+        db.collection(sportName)
+            .document(techniqueName)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val videoURL = document.getString("videoURL")
+                    onComplete(videoURL)
+                } else {
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error getting video URL", exception)
+                onComplete(null)
+            }
+    }
+
+    fun fetchCollections(sportName: String, techniqueName: String, onComplete: (List<String>) -> Unit) {
+        db.collection(sportName)
+            .document(techniqueName)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    val collections = documentSnapshot.data?.keys?.toList() ?: emptyList()
+                    onComplete(collections)
+                } else {
+                    onComplete(emptyList())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error fetching collections", exception)
+                onComplete(emptyList())
+            }
+    }
+
+
+
 }
