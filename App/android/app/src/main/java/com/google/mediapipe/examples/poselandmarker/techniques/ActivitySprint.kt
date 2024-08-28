@@ -28,12 +28,14 @@ class ActivitySprint : AppCompatActivity() {
     }
 
     private fun callActivity() {
+        val intent = intent
+        val userName = intent.getStringExtra("USER_NAME")
 
 
         Intent(this, ActivityVideo::class.java).also {
             it.putExtra("EXTRA_TECHNIQUE", technique)
             it.putExtra("EXTRA_MESSAGE", sport)
-
+            it.putExtra("USER_NAME", userName)
 
             startActivity(it)
         }

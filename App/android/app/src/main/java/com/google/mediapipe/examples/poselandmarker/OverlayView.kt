@@ -38,6 +38,11 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchScore
+import kotlinx.coroutines.launch
 
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
@@ -59,8 +64,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var status = false
 
 
-
-
     private var scaleFactor: Float = 1f
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
@@ -75,7 +78,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var radius=15f
 
 
-
+    private var tempScore = 0
 
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
@@ -149,10 +152,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         sport= getSport()
         technique= getTechnique()
+        userName= getUsername()
 
         initPaints()
 
         //addNewTechnique()
+
+        FirebaseManager.fetchScore(userName) { value ->
+            tempScore = value ?: 0
+            Log.d("user","user: $userName")
+            Log.d("Example", "Field value: $value")
+
+        }
 
         fetchCollections(sport, technique) { collections ->
             val size= collections.size
@@ -342,6 +353,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
     override fun draw(canvas: Canvas) {
+
         //Thread.sleep(delayInMillis)
         super.draw(canvas)
         canvas.drawText("Position: $currentPosition", width / 2f, height*1f/6f, paintPos)
@@ -525,6 +537,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //                fetchAndProcessNextPosition()
 
             }
+
+
             if (correct_count > 10 ) {
                 drawTickMark(canvas)
 
@@ -540,7 +554,11 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     playSound()
                     correct_count = 0
 
-
+                    tempScore++
+                    Log.d("ScoreUpdate", "New Score: $tempScore")
+                    FirebaseManager.updateScore(userName, tempScore){ check ->
+                        Log.d("Status", "Update Status: $check")
+                    }
                 }
 
 //                if (tts?.isSpeaking == false) {
@@ -703,7 +721,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         private var sport: String = ""
         private var technique: String = ""
-
+        private var userName: String = ""
 
 
 
@@ -725,6 +743,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         fun getTechnique(): String {
             return technique
+        }
+
+        fun updateUsername(u: String) {
+            userName = u
+
+        }
+
+        fun getUsername(): String {
+            return userName
         }
 
         private const val LANDMARK_STROKE_WIDTH = 12F

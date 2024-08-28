@@ -6,7 +6,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
+import com.google.mediapipe.examples.poselandmarker.FirebaseManager.addUserToLeader
 import com.google.firebase.auth.FirebaseAuth
+
 
 class ActivityRegistrations : AppCompatActivity() {
 
@@ -46,6 +48,7 @@ class ActivityRegistrations : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            val userName = email.substringBefore('.')
 
             // Register user with Firebase Authentication
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -53,7 +56,11 @@ class ActivityRegistrations : AppCompatActivity() {
                     if (task.isSuccessful) {
                         // Registration success
                         Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+
+
+
                         val intent = Intent(this, MainActivity2::class.java)
+                        intent.putExtra("USER_NAME", userName)
                         startActivity(intent)
                         finish()
 
@@ -64,6 +71,9 @@ class ActivityRegistrations : AppCompatActivity() {
                         Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
+
+            // Update user in the Leaderboard table
+            FirebaseManager.addUserToLeader(userName)
         }
     }
 }
