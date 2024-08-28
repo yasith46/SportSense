@@ -4,11 +4,62 @@ package com.google.mediapipe.examples.poselandmarker
 import android.annotation.SuppressLint
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 object FirebaseManager {
 
     @SuppressLint("StaticFieldLeak")
     private val db = FirebaseFirestore.getInstance()
+
+    // Function to update score in the leaderboard
+    fun updateScore(fieldName: String, newScore: Int, callback: (Boolean?) -> Unit){
+        val docRef = db.collection("Leaderboard").document("Score")
+
+        val updateData = mapOf(fieldName to newScore)
+
+        docRef.update(updateData)
+            .addOnSuccessListener {
+                Log.d("FirebaseManager", "Field value updated successfully.")
+                callback(true)
+            }
+            .addOnFailureListener { exception ->
+                Log.d("FirebaseManager", "Error updating field value.", exception)
+                callback(false)
+            }
+    }
+
+    // Function to receive score of the user
+    fun fetchScore(fieldName: String, callback: (Int?) -> Unit) {
+        val docRef = db.collection("Leaderboard").document("Score")
+
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d("checkcheck", "check123: $fieldName")
+                    Log.d("check", "check1: ${document.data}")
+                    val fieldValue = document.getLong(fieldName)?.toInt()
+                    Log.d("GetValue", "Plsss: $fieldValue")
+                    callback(fieldValue)
+                } else {
+                    Log.d("Firestore", "No such document")
+                    callback(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("Firestore", "Failed to fetch document", exception)
+                callback(null)
+            }
+    }
+
+    // Function to add user to database with a score of 0
+    fun addUserToLeader(user: String) {
+        val updateUser = hashMapOf(user to 0)
+
+        db.collection("Leaderboard").document("Score")
+            .set(updateUser, SetOptions.merge())
+            .addOnSuccessListener { Log.d("Firestore", "User Successfully Registered!") }
+            .addOnFailureListener { e -> Log.w("Firestore", "Error writing document", e) }
+    }
 
     // Function to add a technique with multiple joint sets, each including an expected angle
     fun addTechnique(sportName: String, techniqueName: String, joints: List<Map<String, Any>>) {

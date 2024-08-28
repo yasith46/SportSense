@@ -46,6 +46,8 @@ class ActivityLogin : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            val userName = email.substringBefore('.')
+
             // Sign in user with Firebase Authentication
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
@@ -55,6 +57,7 @@ class ActivityLogin : AppCompatActivity() {
 
                         // Example: Navigate to MainActivity after successful login
                         val intent = Intent(this, MainActivity2::class.java)
+                        intent.putExtra("USER_NAME", userName)
                         startActivity(intent)
                         finish() // Close the login activity so user can't go back to it
                     } else {

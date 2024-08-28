@@ -30,7 +30,7 @@ import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBind
 import android.media.MediaPlayer
 import android.view.View
 import android.widget.Button
-
+import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
 
 
 class MainActivity : AppCompatActivity() {
@@ -58,17 +58,21 @@ class MainActivity : AppCompatActivity() {
 
         val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "No message"
         val technique = intent.getStringExtra("EXTRA_TECHNIQUE") ?: "No message"
+        val userName = intent.getStringExtra("USER_NAME") ?: "No message"
 
         button1 = findViewById(R.id.button1)
         button2 = findViewById(R.id.button2)
 
         button1.setOnClickListener {
             Intent(this, MainActivity::class.java)
+            intent.putExtra("USER_NAME", userName)
             startActivity(intent)
         }
 
         button2.setOnClickListener {
-            val intent = Intent(this, MainActivity2::class.java)
+            val intent = Intent(this, ActivitySprint::class.java)
+            intent.putExtra("USER_NAME", userName)
+            intent.putExtra("EXTRA_MESSAGE", message)
             startActivity(intent)
         }
 
@@ -78,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         // Update the OverlayView with the message
         OverlayView.updateMessage(message)
         OverlayView.updateTechnique(technique)
-
+        OverlayView.updateUsername(userName)
 
 
 

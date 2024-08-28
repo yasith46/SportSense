@@ -73,12 +73,14 @@ class ActivityVideo : AppCompatActivity() {
 
 
     private fun callActivity() {
+        val intent = intent
+        val userName = intent.getStringExtra("USER_NAME")
 
 
         Intent(this, MainActivity::class.java).also {
             it.putExtra("EXTRA_TECHNIQUE", technique)
             it.putExtra("EXTRA_MESSAGE", message)
-
+            it.putExtra("USER_NAME", userName)
 
 
 
