@@ -1,10 +1,14 @@
 package com.google.mediapipe.examples.poselandmarker
 
+import ViewPagerAdapter
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
 
 private var sport= "Sprint"
@@ -13,41 +17,35 @@ private var activity= "no"
 
 class MainActivity2 : AppCompatActivity() {
 
+    private lateinit var viewPagerAdapter: ViewPagerAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
 
-        val intent = intent
-        val userName = intent.getStringExtra("USER_NAME")
-        val myTextView: TextView = findViewById(R.id.textView4)
 
-        myTextView.text = userName
 
-        val buttonS = findViewById<Button>(R.id.button5)
-        buttonS.setOnClickListener {
-            sport= "Sprint"
-            //activity = "ActivitySprint"
-            callActivity()
-        }
-        val buttonW = findViewById<Button>(R.id.button7)
-        buttonW.setOnClickListener {
-            sport= "Workout"
-            //activity = "ActivityWorkout"
+        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
+        val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
 
-            callActivity()
-        }
-    }
-
-    private fun callActivity() {
         val intent = intent
         val userName = intent.getStringExtra("USER_NAME")
 
-        Intent(this, ActivitySprint::class.java).also {
-            it.putExtra("EXTRA_MESSAGE", sport)
-            it.putExtra("USER_NAME", userName)
+        // Initialize the adapter and set it to the ViewPager2
+        viewPagerAdapter = ViewPagerAdapter(this, userName)
+        viewPager.adapter = viewPagerAdapter
 
-            startActivity(it)
-        }
+
+        // Attach the TabLayout with ViewPager2
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.setIcon(R.drawable.ic_tab1)
+                1 -> tab.setIcon(R.drawable.ic_tab2)
+                2 -> tab.setIcon(R.drawable.ic_tab3)
+            }
+        }.attach()
+
     }
 
 //    private fun callActivity() {
@@ -67,4 +65,5 @@ class MainActivity2 : AppCompatActivity() {
 //            Log.e("MainActivity2", "Activity not found")
 //        }
 //    }
+
 }
