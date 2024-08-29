@@ -38,11 +38,6 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
-import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchScore
-import kotlinx.coroutines.launch
 
 
 class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs), TextToSpeech.OnInitListener {
@@ -50,6 +45,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
     private var circlePaint = Paint()
+
 
 
     private var linePaint = Paint()
@@ -82,6 +78,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private var tts: TextToSpeech? = null
     private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.sound)
+
+    private var repCount = 0
+    private var repTotal = 3
 
 
 
@@ -165,6 +164,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
         }
 
+
+
         fetchCollections(sport, technique) { collections ->
             val size= collections.size
             // Handle the collections list here
@@ -177,9 +178,19 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             Log.d(TAG, "Collection name: $positions")
             Log.d(TAG, "ko bro: $sport $technique $positions ")
             fetchAndProcessNextPosition()
+            }
+//        fetchFieldValuesExcludingVideoUrl(sport, technique) { fieldValues ->
+//            val size = fieldValues.size
+//            // Handle the field values list here
+//            for (fieldValue in fieldValues) {
+//                positions.add(fieldValue as String)
+//                // Do something with each field value
+//            }
+//            Log.d(TAG, "Field values: $positions")
+//            Log.d(TAG, "ko bro: $sport $technique $positions ")
+//            fetchAndProcessNextPosition()
+//        }
 
-
-        }
 
 
 
@@ -202,6 +213,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
             if (currentPositionIndex + 1 < positions.size) {
                 nextPosition = positions[currentPositionIndex + 1]}
+            else {
+                nextPosition = positions[0]
+            }
+
 
 
 
@@ -212,6 +227,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
         } else {
+
+
+
             Log.d(TAG, "All positions processed")
             // Handle completion or looping if needed
         }
@@ -357,12 +375,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         //Thread.sleep(delayInMillis)
         super.draw(canvas)
         canvas.drawText("Position: $currentPosition", width / 2f, height*1f/6f, paintPos)
+        val repMore =repTotal-repCount
+        canvas.drawText("$repMore reps more ", width / 2f, height*4f/6f, paintPos)
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
             var set1isInExpectedRange = false
             var set2isInExpectedRange = false
-            var set3isInExpectedRange = false
+            var set3isInExpectedRange = true
+            var set4isInExpectedRange = true
 
             // Process landmarks and angles
             for (landmark in poseLandmarkerResult.landmarks()) {
@@ -427,7 +448,29 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                             canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f-100f, paint)
                         }
                     } else if ((index == 2)) { set3isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
-                    } else if ((index == 3)) { set2isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
+                        if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")}
+                            canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f-200f, paint)
+                        }
+                        else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
+                            canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f-200f, paint)
+                        }
+
+
+                    } else if ((index == 3)) { set4isInExpectedRange = isAngleInExpectedRange(angle, expectedAngle, 10)
+                        if (isAngleLessThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb less")}
+                            canvas.drawText("Bend your $limb less", width / 2f, height*1f/4f-300f, paint)
+                        }
+                        else if (isAngleGreaterThanExpectedRange(angle, expectedAngle, 10)) {
+                            if (tts?.isSpeaking == false) {
+                                speak("Bend your $limb more")}
+                            canvas.drawText("Bend your $limb more", width / 2f, height*1f/4f-300f, paint)
+                        }
                     }
 
 
@@ -440,7 +483,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
 
 
-                    if (set1isInExpectedRange && set2isInExpectedRange && set3isInExpectedRange) {
+                    if (set1isInExpectedRange && set2isInExpectedRange && set3isInExpectedRange && set4isInExpectedRange) {
                         allAnglesValid = true
                     }
 
@@ -538,28 +581,39 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
             }
 
+            if (repCount<repTotal) {
 
-            if (correct_count > 10 ) {
-                drawTickMark(canvas)
+                if (correct_count > 10 ) {
+                    drawTickMark(canvas)
 
-                if (tts?.isSpeaking == false && currentPositionIndex!= positions.size) {
-                   speak("you are good with the $currentPosition position, now try the position $nextPosition ")
-                    playSound()
-                    fetchAndProcessNextPosition()
-                    correct_count = 0
+                    if (tts?.isSpeaking == false && currentPositionIndex != positions.size) {
+                        if (repCount ==0) {
+                            speak("you are good with the $currentPosition position, now try the position $nextPosition ")}
+                        else {speak("Now $nextPosition")}
 
-                }
-                else if (tts?.isSpeaking == false && currentPositionIndex== positions.size){
-                    speak("Well done! Try again or try out a new technique.")
-                    playSound()
-                    correct_count = 0
+//                        playSound()
+                        fetchAndProcessNextPosition()
+                        correct_count = 0
 
-                    tempScore++
-                    Log.d("ScoreUpdate", "New Score: $tempScore")
-                    FirebaseManager.updateScore(userName, tempScore){ check ->
-                        Log.d("Status", "Update Status: $check")
+                    } else if (tts?.isSpeaking == false && currentPositionIndex == positions.size) {
+                        if (repCount ==0) {
+                            speak("you are good with the $currentPosition position, now try the position $nextPosition ")}
+
+                        currentPositionIndex=0
+
+                        speak("$repMore more to go. Keep Going.")
+
+                        //playSound()
+                        correct_count = 0
+
+                        tempScore++
+                        repCount++
+                        Log.d("ScoreUpdate", "New Score: $tempScore")
+                        FirebaseManager.updateScore(userName, tempScore) { check ->
+                            Log.d("Status", "Update Status: $check")
+                        }
                     }
-                }
+            }
 
 //                if (tts?.isSpeaking == false) {
 //                    playSound()
@@ -567,6 +621,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 //                    correct_count = 0}
 
             }
+            else {
+                speak("Well done! Try again or try out a new technique.")
+                playSound()
+                repCount=0
+
+
+            }
+
+
 
 
 

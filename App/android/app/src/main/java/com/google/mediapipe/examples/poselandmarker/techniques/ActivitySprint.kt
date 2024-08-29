@@ -9,8 +9,8 @@ import com.google.mediapipe.examples.poselandmarker.ActivityVideo
 import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchCollectionNames
 import com.google.mediapipe.examples.poselandmarker.R
 
-private var technique = "no"
-private var sport = "no"
+private var technique = "loading"
+private var sport = "loading"
 
 class ActivitySprint : AppCompatActivity() {
     private lateinit var buttonContainer: LinearLayout
