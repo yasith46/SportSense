@@ -154,6 +154,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         userName= getUsername()
 
         initPaints()
+        repCount=0
 
         //addNewTechnique()
 
@@ -596,12 +597,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         correct_count = 0
 
                     } else if (tts?.isSpeaking == false && currentPositionIndex == positions.size) {
-                        if (repCount ==0) {
-                            speak("you are good with the $currentPosition position, now try the position $nextPosition ")}
 
                         currentPositionIndex=0
+                        fetchAndProcessNextPosition()
 
-                        speak("$repMore more to go. Keep Going.")
+                        val rapMoreToGo=repMore-1
+
+                        speak("$rapMoreToGo more to go. Keep Going.")
 
                         //playSound()
                         correct_count = 0
