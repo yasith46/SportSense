@@ -383,7 +383,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
             var allAnglesValid = false
             var set1isInExpectedRange = false
             var set2isInExpectedRange = false
-            var set3isInExpectedRange = true
+            var set3isInExpectedRange = false
             var set4isInExpectedRange = true
 
             // Process landmarks and angles
