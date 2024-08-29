@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.mediapipe.examples.poselandmarker.Home.Companion.ARG_DATA
 import com.google.mediapipe.examples.poselandmarker.Leaderboard.Companion
 import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
@@ -46,7 +48,9 @@ class Profile: Fragment() {
     }
 }
 
-class Leaderboard: Fragment() {
+class Leaderboard: Fragment(R.layout.fragment_leaderboard) {
+
+    private lateinit var adapter: LeaderboardAdapter
 
     companion object {
         private const val ARG_DATA = "arg_data"
@@ -72,6 +76,28 @@ class Leaderboard: Fragment() {
         val userName = arguments?.getString(ARG_DATA) ?: "User Name"
 
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Find the RecyclerView by its ID from the inflated view
+        val leaderboardRecyclerView = view.findViewById<RecyclerView>(R.id.leaderboardRecyclerView)
+
+        // Set LayoutManager (LinearLayoutManager for a vertical list)
+        leaderboardRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Initialize the adapter with an empty list or initial data
+        adapter = LeaderboardAdapter(listOf())
+        leaderboardRecyclerView.adapter = adapter
+
+        FirebaseManager.fetchLeader { sortedData ->
+            val leaderboardItems = sortedData.map { (fieldName, value) ->
+                LeaderboardItem(fieldName, value)
+            }
+            adapter.updateData(leaderboardItems) // Update adapter with new data
+        }
+
     }
 }
 
