@@ -15,8 +15,8 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/backk"
-        tools:layout_editor_absoluteX="81dp"
-        tools:layout_editor_absoluteY="82dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="81dp" />
 
     <TextView
         android:id="@+id/textView3"
@@ -78,11 +78,13 @@
         android:layout_width="300dp"
         android:layout_height="100dp"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/basketball"
         android:paddingHorizontal="10dp"
         android:paddingVertical="10dp"
         android:text="BASKETBALL"
-        android:background="@drawable/basketball"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/button8"
         app:layout_constraintStart_toStartOf="@+id/button8"
         app:layout_constraintTop_toBottomOf="@+id/button8" />

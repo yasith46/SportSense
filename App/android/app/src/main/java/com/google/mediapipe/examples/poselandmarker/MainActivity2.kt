@@ -39,7 +39,11 @@ class MainActivity2 : AppCompatActivity() {
 
         // Attach the TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = "Tab ${position + 1}"  // Set tab title based on position
+            when (position) {
+                0 -> tab.setIcon(R.drawable.ic_tab1)
+                1 -> tab.setIcon(R.drawable.ic_tab2)
+                2 -> tab.setIcon(R.drawable.ic_tab3)
+            }
         }.attach()
 
     }

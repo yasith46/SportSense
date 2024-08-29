@@ -57,7 +57,8 @@ class ActivityRegistrations : AppCompatActivity() {
                         // Registration success
                         Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
 
-
+                        // Update user in the Leaderboard table
+                        FirebaseManager.addUserToLeader(userName)
 
                         val intent = Intent(this, MainActivity2::class.java)
                         intent.putExtra("USER_NAME", userName)
@@ -72,8 +73,6 @@ class ActivityRegistrations : AppCompatActivity() {
                     }
                 }
 
-            // Update user in the Leaderboard table
-            FirebaseManager.addUserToLeader(userName)
         }
     }
 }
