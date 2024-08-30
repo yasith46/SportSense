@@ -170,6 +170,13 @@ class Home : Fragment() {
 
             callActivity(userName)
         }
+        val buttonC = rootView.findViewById<Button>(R.id.button8)
+        buttonC.setOnClickListener {
+            sport= "Cricket"
+            //activity = "ActivityWorkout"
+
+            callActivity(userName)
+        }
 
         return rootView
     }
