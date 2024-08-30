@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.mediapipe.examples.poselandmarker.Home.Companion.ARG_DATA
 import com.google.mediapipe.examples.poselandmarker.Leaderboard.Companion
 import com.google.mediapipe.examples.poselandmarker.techniques.ActivitySprint
@@ -42,11 +44,40 @@ class Profile: Fragment() {
         // Retrieve the data from arguments
         val userName = arguments?.getString(ARG_DATA) ?: "User Name"
 
+        val myTextView = rootView.findViewById<TextView>(R.id.userName)
+        myTextView.text = userName
+
+        FirebaseManager.fetchScore(userName){Score ->
+            val score = Score ?: 0
+            val level = score/5
+            val myTextScore = rootView.findViewById<TextView>(R.id.textViewScore)
+            myTextScore.text = score.toString()
+
+            val myTextLevel = rootView.findViewById<TextView>(R.id.textViewLevel)
+            myTextLevel.text = level.toString()
+        }
+
+        val buttonLogout = rootView.findViewById<Button>(R.id.logoutButton)
+        buttonLogout.setOnClickListener {
+            sport= "Sprint"
+            //activity = "ActivitySprint"
+            callActivity()
+        }
+
         return rootView
+    }
+
+    private fun callActivity() {
+
+        val intent = Intent(activity, ActivityLogin::class.java).also {
+            startActivity(it)
+        }
     }
 }
 
-class Leaderboard: Fragment() {
+class Leaderboard: Fragment(R.layout.fragment_leaderboard) {
+
+    private lateinit var adapter: LeaderboardAdapter
 
     companion object {
         private const val ARG_DATA = "arg_data"
@@ -72,6 +103,28 @@ class Leaderboard: Fragment() {
         val userName = arguments?.getString(ARG_DATA) ?: "User Name"
 
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Find the RecyclerView by its ID from the inflated view
+        val leaderboardRecyclerView = view.findViewById<RecyclerView>(R.id.leaderboardRecyclerView)
+
+        // Set LayoutManager (LinearLayoutManager for a vertical list)
+        leaderboardRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Initialize the adapter with an empty list or initial data
+        adapter = LeaderboardAdapter(listOf())
+        leaderboardRecyclerView.adapter = adapter
+
+        FirebaseManager.fetchLeader { sortedData ->
+            val leaderboardItems = sortedData.map { (fieldName, value) ->
+                LeaderboardItem(fieldName, value)
+            }
+            adapter.updateData(leaderboardItems) // Update adapter with new data
+        }
+
     }
 }
 
@@ -113,6 +166,13 @@ class Home : Fragment() {
         val buttonW = rootView.findViewById<Button>(R.id.button7)
         buttonW.setOnClickListener {
             sport= "Workout"
+            //activity = "ActivityWorkout"
+
+            callActivity(userName)
+        }
+        val buttonC = rootView.findViewById<Button>(R.id.button8)
+        buttonC.setOnClickListener {
+            sport= "Cricket"
             //activity = "ActivityWorkout"
 
             callActivity(userName)

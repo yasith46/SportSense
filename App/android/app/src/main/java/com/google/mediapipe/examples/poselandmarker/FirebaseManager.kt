@@ -11,6 +11,41 @@ object FirebaseManager {
     @SuppressLint("StaticFieldLeak")
     private val db = FirebaseFirestore.getInstance()
 
+    // Function to fetch leaderboard
+    fun fetchLeader(onSortedDataReady: (Map<String, Number>) -> Unit) {
+        val docRef = db.collection("Leaderboard").document("Score")
+
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val data = document.data // `document` is your fetched DocumentSnapshot
+
+                    if (data != null) {
+                        // Filter and cast to a map of numeric values
+                        val numericData = data.filterValues { it is Number } as Map<String, Number>
+
+                        // Sort the map by values in descending order
+                        val sortedData = numericData.toList().sortedByDescending { (_, value) -> value.toDouble() }.toMap()
+
+                        // Print the sorted fields and their values
+                        /*
+                        for ((fieldName, value) in sortedData) {
+                            Log.d("Leaderboard","Field: $fieldName - Value: $value")
+                        }
+                         */
+                        onSortedDataReady(sortedData)
+                    }
+                } else {
+                    Log.d("Firestore", "No such document")
+                    onSortedDataReady(emptyMap())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("Firestore", "Failed to fetch document", exception)
+                onSortedDataReady(emptyMap())
+            }
+    }
+
     // Function to update score in the leaderboard
     fun updateScore(fieldName: String, newScore: Int, callback: (Boolean?) -> Unit){
         val docRef = db.collection("Leaderboard").document("Score")

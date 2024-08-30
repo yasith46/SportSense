@@ -1,22 +1,34 @@
 package com.google.mediapipe.examples.poselandmarker
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
+import android.view.View
+import android.view.MotionEvent
 import android.widget.Button
+import android.widget.TextView
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText
-import com.google.mediapipe.examples.poselandmarker.FirebaseManager.addUserToLeader
 import com.google.firebase.auth.FirebaseAuth
 
 
 class ActivityRegistrations : AppCompatActivity() {
 
-    private lateinit var editTextEmail: TextInputEditText
-    private lateinit var editTextPassword: TextInputEditText
+    private lateinit var editTextEmail: EditText
+    private lateinit var editTextPassword: EditText
     private lateinit var buttonRegister: Button
     private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var buttonAccount: Button
+    private lateinit var textViewLogIn: TextView
+    private var isPasswordVisible: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +41,20 @@ class ActivityRegistrations : AppCompatActivity() {
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextPassword = findViewById(R.id.editTextPassword)
         buttonRegister = findViewById(R.id.buttonRegister)
-        buttonAccount = findViewById(R.id.buttonAccount)
+        textViewLogIn = findViewById(R.id.textViewLogin)
 
-        buttonAccount.setOnClickListener {
-            val intent = Intent(this, ActivityLogin::class.java)
-            startActivity(intent)
+        // Set up clickable "Sign Up" text
+        setupLogInText()
+
+        // Add the toggle functionality to show/hide password
+        editTextPassword.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= (editTextPassword.right - editTextPassword.compoundDrawables[2].bounds.width())) {
+                    togglePasswordVisibility()
+                    return@setOnTouchListener true
+                }
+            }
+            false
         }
 
         // Set click listener for register button
@@ -48,7 +69,7 @@ class ActivityRegistrations : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val userName = email.substringBefore('.')
+            val userName = email.substringBefore('@')
 
             // Register user with Firebase Authentication
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -74,5 +95,50 @@ class ActivityRegistrations : AppCompatActivity() {
                 }
 
         }
+    }
+
+    private fun setupLogInText() {
+        val fullText = "Already have an account? Log in"
+        val spannableString = SpannableString(fullText)
+
+        // Apply a different color to "Sign Up"
+        val colorSpan = ForegroundColorSpan(Color.GREEN) // Change to your desired color
+        spannableString.setSpan(colorSpan, fullText.indexOf("Log in"), fullText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        // Make "Sign Up" clickable
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                // Handle the click event for "Sign Up"
+                val intent = Intent(this@ActivityRegistrations, ActivityLogin::class.java)
+                startActivity(intent)
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = false // Optional: Remove underline from clickable text
+            }
+        }
+
+        spannableString.setSpan(clickableSpan, fullText.indexOf("Log in"), fullText.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        // Apply the SpannableString to the TextView
+        textViewLogIn.text = spannableString
+        textViewLogIn.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private fun togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            // Hide Password
+            editTextPassword.transformationMethod = PasswordTransformationMethod.getInstance()
+            editTextPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_visibility_off_24, 0) // Set "eye closed" icon
+        } else {
+            // Show Password
+            editTextPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            editTextPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_remove_red_eye_24, 0) // Set "eye open" icon
+        }
+        isPasswordVisible = !isPasswordVisible
+
+        // Move the cursor to the end of the text
+        editTextPassword.setSelection(editTextPassword.text?.length ?: 0)
     }
 }

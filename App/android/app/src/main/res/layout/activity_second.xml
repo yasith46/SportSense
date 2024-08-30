@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ActivityRegistrations">
+    tools:context=".second">
 
     <ImageView
         android:id="@+id/backgroundImage"
@@ -16,12 +16,12 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/cricket_image2"
-        android:layout_marginTop="200dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bg_image2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:scaleType="centerCrop"
+        android:layout_marginLeft="60dp"
         android:tint="#DD17B4C6" />
 
     <TextView
@@ -31,7 +31,7 @@
         android:layout_marginTop="100dp"
         android:layout_marginLeft="30dp"
         android:textColor="#ffffff"
-        android:text="Welcome!"
+        android:text="Hi!"
         android:textSize="35dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,62 +43,57 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:textColor="#00676D"
-        android:text="Create your SportSense Account"
+        android:text="Let's get started"
         android:textSize="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView2" />
 
-    <EditText
-        android:id="@+id/editTextEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="30dp"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/textView3"/>
-
-    <EditText
-        android:id="@+id/editTextPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
-        android:hint="Password"
-        android:inputType="textPassword"
-        app:layout_constraintTop_toBottomOf="@id/editTextEmail"
-        android:drawableEnd="@drawable/baseline_remove_red_eye_24"/>
-
     <Button
-        android:id="@+id/buttonRegister"
+        android:id="@+id/buttonGoToLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="16dp"
-        android:text="Create Account"
+        android:text="Log In"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:background="@drawable/button_background"
         android:stateListAnimator="@null"
-        app:layout_constraintTop_toBottomOf="@id/editTextPassword"
+        app:layout_constraintTop_toBottomOf="@id/textView3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/textViewLogin"
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="49dp"
-        android:text="Already have an account? Log in"
+        android:layout_marginTop="10dp"
+        android:textColor="#00676D"
+        android:text="or"
         android:textSize="15dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonGoToLogin" />
+
+    <Button
+        android:id="@+id/buttonGoToSignup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:textSize="16dp"
+        android:text="Create an Account"
+        android:textAllCaps="false"
+        android:textColor="#2F9FA7"
+        android:background="@drawable/button_background"
+        android:stateListAnimator="@null"
+        app:backgroundTint="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/textView4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

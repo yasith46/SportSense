@@ -16,11 +16,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".ActivityLogin"
-            android:exported="false" />
-        <activity
-            android:name=".ActivityRegistrations"
-            android:exported="true">
+            android:name=".first"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,16 +25,26 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".second"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityLogin"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".ActivityRegistrations"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
             android:name=".ActivityVideo"
             android:exported="false" />
-
         <activity
             android:name=".techniques.ActivitySprint"
             android:exported="false" />
         <activity
             android:name=".MainActivity2"
-            android:exported="true"/>
-
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
