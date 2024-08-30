@@ -46,7 +46,7 @@ class ActivityLogin : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val userName = email.substringBefore('.')
+            val userName = email.substringBefore('@')
 
             // Sign in user with Firebase Authentication
             firebaseAuth.signInWithEmailAndPassword(email, password)

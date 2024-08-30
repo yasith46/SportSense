@@ -44,7 +44,34 @@ class Profile: Fragment() {
         // Retrieve the data from arguments
         val userName = arguments?.getString(ARG_DATA) ?: "User Name"
 
+        val myTextView = rootView.findViewById<TextView>(R.id.userName)
+        myTextView.text = userName
+
+        FirebaseManager.fetchScore(userName){Score ->
+            val score = Score ?: 0
+            val level = score/5
+            val myTextScore = rootView.findViewById<TextView>(R.id.textViewScore)
+            myTextScore.text = score.toString()
+
+            val myTextLevel = rootView.findViewById<TextView>(R.id.textViewLevel)
+            myTextLevel.text = level.toString()
+        }
+
+        val buttonLogout = rootView.findViewById<Button>(R.id.logoutButton)
+        buttonLogout.setOnClickListener {
+            sport= "Sprint"
+            //activity = "ActivitySprint"
+            callActivity()
+        }
+
         return rootView
+    }
+
+    private fun callActivity() {
+
+        val intent = Intent(activity, ActivityLogin::class.java).also {
+            startActivity(it)
+        }
     }
 }
 

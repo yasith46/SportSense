@@ -48,7 +48,7 @@ class ActivityRegistrations : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val userName = email.substringBefore('.')
+            val userName = email.substringBefore('@')
 
             // Register user with Firebase Authentication
             firebaseAuth.createUserWithEmailAndPassword(email, password)
