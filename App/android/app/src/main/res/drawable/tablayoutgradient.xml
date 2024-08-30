@@ -1,0 +1,13 @@
+<!-- res/drawable/fade_out.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Top fade -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#129AFDFB"
+                android:endColor="#9AFDFB"
+                android:type="linear"/>
+        </shape>
+    </item>
+</layer-list>
