@@ -1,7 +1,11 @@
 package com.google.mediapipe.examples.poselandmarker.techniques
+import android.view.MotionEvent
+import androidx.core.content.ContextCompat
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -42,24 +46,51 @@ class ActivitySprint : AppCompatActivity() {
     }
 
     private fun loadButtonsFromFirestore() {
-
-        // Replace "sportName" with your actual sport collection name
-
         fetchCollectionNames(sport) { collectionNames ->
             buttonContainer.removeAllViews() // Clear existing buttons
 
             for (collectionName in collectionNames) {
                 val button = Button(this).apply {
-                    text = collectionName
-                    //technique=collectionName
+                    val buttonName = collectionName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                    text = buttonName
+                    setTextColor(ContextCompat.getColor(context, R.color.darkteal))
+                    textSize = 25f
+                    setPadding(40, 80, 40, 80) // Adjust padding if necessary
+                    setBackgroundResource(R.drawable.button_background_3) // Use your drawable resource here
+
+                    gravity = Gravity.START or Gravity.CENTER_VERTICAL
+
+                    // Set the OnClickListener to handle the button click
                     setOnClickListener {
                         technique = (it as Button).text.toString()
                         callActivity()
+                    }
 
-
-                        // Handle button click, e.g., open a new activity or fragment
+                    // Add the OnTouchListener for the scaling effect
+                    setOnTouchListener { v, event ->
+                        when (event.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                v.scaleX = 0.98f
+                                v.scaleY = 0.98f
+                            }
+                            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                v.scaleX = 1f
+                                v.scaleY = 1f
+                            }
+                        }
+                        false
                     }
                 }
+
+                // Set button size programmatically
+                val layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    // Set margins (top, right, bottom, left)
+                    setMargins(10, 10, 10, 10)
+                }
+                button.layoutParams = layoutParams
 
                 buttonContainer.addView(button)
             }

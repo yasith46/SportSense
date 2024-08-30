@@ -3,7 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="0dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp">
 
     <TextView
         android:id="@+id/fieldNameTextView"
@@ -12,7 +15,10 @@
         android:layout_weight="1"
         android:text="Field Name"
         android:textSize="18sp"
-        android:textColor="@android:color/black"/>
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:background="@drawable/rounded_left_corners"/>
 
     <TextView
         android:id="@+id/valueTextView"
@@ -20,5 +26,9 @@
         android:layout_height="wrap_content"
         android:text="Value"
         android:textSize="18sp"
-        android:textColor="@android:color/black"/>
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:background="@drawable/rounded_right_corners"/>
+
 </LinearLayout>
