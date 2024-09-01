@@ -51,7 +51,7 @@ class Profile: Fragment() {
             val score = Score ?: 0
             val level = score/5
             val myTextScore = rootView.findViewById<TextView>(R.id.textViewScore)
-            myTextScore.text = score.toString()
+            myTextScore.text = score.toString() + " XP"
 
             val myTextLevel = rootView.findViewById<TextView>(R.id.textViewLevel)
             myTextLevel.text = level.toString()
@@ -120,7 +120,7 @@ class Leaderboard: Fragment(R.layout.fragment_leaderboard) {
 
         FirebaseManager.fetchLeader { sortedData ->
             val leaderboardItems = sortedData.map { (fieldName, value) ->
-                LeaderboardItem(fieldName, value)
+                LeaderboardItem(fieldName, value.toString() + " XP")
             }
             adapter.updateData(leaderboardItems) // Update adapter with new data
         }
@@ -155,7 +155,7 @@ class Home : Fragment() {
         val myTextView = rootView.findViewById<TextView>(R.id.textView4)
 
         Log.d("Checkuser", "Plsss: $userName")
-        myTextView.text = userName
+        myTextView.text = "Hi " + userName + "!"
 
         val buttonS = rootView.findViewById<Button>(R.id.button5)
         buttonS.setOnClickListener {

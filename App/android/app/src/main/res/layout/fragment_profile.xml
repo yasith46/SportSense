@@ -1,22 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
     android:background="@drawable/gradient1">
+
+    <TextView
+        android:id="@+id/textViewWelcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_marginLeft="30dp"
+        android:textColor="#00676D"
+        android:text="Account"
+        android:textSize="35dp"
+        android:gravity="left"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/textViewWelcome"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp">
 
         <!-- Profile Picture -->
         <ImageView
             android:id="@+id/profileImage"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:src="@drawable/ic_profile_placeholder"
+            android:src="@drawable/baseline_person_24"
             android:scaleType="centerCrop"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
@@ -108,31 +127,38 @@
             android:id="@+id/userBio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This is a brief bio about the user."
+            android:text="Woah that's a good score up there!"
             android:textSize="14sp"
             android:textColor="?android:attr/textColorSecondary"
-            android:layout_marginBottom="32dp"
-            android:layout_marginTop="32dp"/>
+            android:layout_marginTop="15dp"/>
 
         <!-- Edit Profile Button -->
         <Button
             android:id="@+id/editProfileButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/edit_profile"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="@android:color/white" />
+            android:layout_marginTop="25dp"
+            android:textSize="16dp"
+            android:text="Edit Account"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"/>
 
         <!-- Logout Button -->
         <Button
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/logout"
-            android:backgroundTint="@android:color/holo_red_light"
-            android:textColor="@android:color/white" />
+            android:layout_marginTop="15dp"
+            android:textSize="16dp"
+            android:text="Log Out"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTintMode="add"
+            app:backgroundTint="#F14A6B"
+            android:background="@drawable/button_background"
+             />
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
