@@ -40,11 +40,34 @@ class MainActivity2 : AppCompatActivity() {
         // Attach the TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> tab.setIcon(R.drawable.ic_tab1)
-                1 -> tab.setIcon(R.drawable.ic_tab2)
-                2 -> tab.setIcon(R.drawable.ic_tab3)
+                0 -> tab.setIcon(R.drawable.baseline_home_24)
+                1 -> tab.setIcon(R.drawable.outline_leaderboard_24)
+                2 -> tab.setIcon(R.drawable.baseline_person_outline_24)
             }
         }.attach()
+
+        // Listen for tab selection events
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> tab.setIcon(R.drawable.baseline_home_24) // Selected icon for Tab 0
+                    1 -> tab.setIcon(R.drawable.baseline_leaderboard_24) // Selected icon for Tab 1
+                    2 -> tab.setIcon(R.drawable.baseline_person_24) // Selected icon for Tab 2
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> tab.setIcon(R.drawable.outline_home_24) // Default icon for Tab 0
+                    1 -> tab.setIcon(R.drawable.outline_leaderboard_24) // Default icon for Tab 1
+                    2 -> tab.setIcon(R.drawable.baseline_person_outline_24) // Default icon for Tab 2
+                }
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Optional: Handle reselection if needed
+            }
+        })
 
     }
 
