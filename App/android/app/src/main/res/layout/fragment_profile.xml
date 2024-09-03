@@ -61,8 +61,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp" >
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="70dp" >
 
             <TextView
                 android:id="@+id/textView1"
@@ -71,9 +71,7 @@
                 android:text="Level"
                 android:textSize="18sp"
                 android:textColor="?android:attr/textColorSecondary"
-                android:layout_weight="1"
-                android:paddingEnd="8dp"
-                android:gravity="center" />
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/textViewLevel"
@@ -83,8 +81,7 @@
                 android:textSize="18sp"
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_weight="1"
-                android:paddingStart="8dp"
-                android:gravity="center" />
+                android:gravity="right"/>
 
         </LinearLayout>
 
@@ -95,8 +92,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp" >
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="70dp" >
 
             <TextView
                 android:id="@+id/textView2"
@@ -105,9 +102,7 @@
                 android:text="Score"
                 android:textSize="14sp"
                 android:textColor="?android:attr/textColorSecondary"
-                android:layout_weight="1"
-                android:paddingEnd="8dp"
-                android:gravity="center" />
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/textViewScore"
@@ -118,7 +113,7 @@
                 android:textColor="?android:attr/textColorSecondary"
                 android:layout_weight="1"
                 android:paddingStart="8dp"
-                android:gravity="center" />
+                android:gravity="right" />
 
         </LinearLayout>
 
