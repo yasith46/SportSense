@@ -384,28 +384,31 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         val repMore =repTotal-repCount
         canvas.drawText("$repMore reps more ", width / 2f, height*4f/6f, paintPos)
 
-        Log.d(TAG,"resultbroo$results")
-        Log.d(TAG,"broge bat eke result$resultBat")
+        if (sport =="Cricket"){
+            Log.d(TAG,"resultbroo$results")
+            Log.d(TAG,"broge bat eke result$resultBat")
 
 
-        resultBat?.detections()?.forEach { detection ->
-            val boundingBox = detection.boundingBox()
-            if (boundingBox != null) {
-                // Define paint for the line
-                val paintLine = Paint().apply {
-                    color = Color.BLUE // Choose a different color for the object detection line
-                    strokeWidth = 5f // Choose a stroke width
-                    style = Paint.Style.STROKE // Draw line
+            resultBat?.detections()?.forEach { detection ->
+                val boundingBox = detection.boundingBox()
+                if (boundingBox != null) {
+                    // Define paint for the line
+                    val paintLine = Paint().apply {
+                        color = Color.BLUE // Choose a different color for the object detection line
+                        strokeWidth = 5f // Choose a stroke width
+                        style = Paint.Style.STROKE // Draw line
+                    }
+
+                    // Draw a line connecting the top-left and bottom-right corners
+                    canvas.drawLine(
+                        boundingBox.left*3.5f, boundingBox.top*3.5f,
+                        boundingBox.right*3.5f, boundingBox.bottom*3.5f,
+                        paintLine
+                    )
                 }
+            }}
 
-                // Draw a line connecting the top-left and bottom-right corners
-                canvas.drawLine(
-                    boundingBox.left*3.5f, boundingBox.top*3.5f,
-                    boundingBox.right*3.5f, boundingBox.bottom*3.5f,
-                    paintLine
-                )
-            }
-        }
+
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
