@@ -64,6 +64,14 @@ class Profile: Fragment() {
             callActivity()
         }
 
+        val textViewPrivacyPolicy = rootView.findViewById<TextView>(R.id.policy)
+
+        textViewPrivacyPolicy.setOnClickListener {
+            // Navigate to Activity1
+            val intent = Intent(requireContext(), ActivityPolicy::class.java)
+            startActivity(intent)
+        }
+
         return rootView
     }
 
