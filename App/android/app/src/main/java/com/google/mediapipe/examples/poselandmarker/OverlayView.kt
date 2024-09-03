@@ -105,6 +105,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         setShadowLayer(5f, 0f, 0f, Color.BLACK) // Adds a black shadow
     }
 
+    private var paintLine = Paint().apply {
+        color = Color.parseColor("#2DFF9D") // Green color
+        strokeWidth = 3f
+        style = Paint.Style.STROKE
+        isAntiAlias = true // Smooth edges
+
+    }
+
+
 
 
 
@@ -334,15 +343,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     private fun initPaints() {
         linePaint.color = Color.GREEN
         //ContextCompat.getColor(context!!, R.color.mp_color_primary)
-        linePaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        linePaint.strokeWidth = 2f
         linePaint.style = Paint.Style.STROKE
 
         redLinePaint.color = Color.RED
-        redLinePaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        redLinePaint.strokeWidth = 3f
         redLinePaint.style = Paint.Style.STROKE
 
-        pointPaint.color = Color.WHITE
-        pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
+        pointPaint.color = Color.rgb(45, 255, 157)
+        pointPaint.strokeWidth = 4f
         pointPaint.style = Paint.Style.FILL
 
         circlePaint.color = Color.WHITE
@@ -404,7 +413,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         boundingBox.left*3.5f, boundingBox.top*3.5f,
                         boundingBox.right*3.5f, boundingBox.bottom*3.5f,
                         paintLine
+
+
+
                     )
+                    canvas.drawCircle(
+                        boundingBox.left*3.5f ,
+                        boundingBox.bottom*3.5f ,
+                        7f,
+                        pointPaint)
                 }
             }}
 
@@ -528,6 +545,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                         val endX = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].x() * imageWidth * scaleFactor
                         val endY = poseLandmarkerResult.landmarks()[0][poseLandmark.end()].y() * imageHeight * scaleFactor
 
+                        canvas.drawLine(startX, startY, endX, endY, paintLine)
+
+                        canvas.drawCircle(
+                            startX ,
+                            startY ,
+                            7f,
+                            pointPaint)
+
 
 
 
@@ -572,28 +597,28 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
                     // Determine line color
                     linePaint.color = getLineColor(lineData.expectedAngle!!, lineData.angle, range)
                     canvas.drawLine(lineData.startX, lineData.startY, lineData.endX, lineData.endY, if (lineData.useRedPaint) redLinePaint else linePaint)
-                    canvas.drawCircle(
-                        lineData.startX ,
-                        lineData.startY ,
-                        radius+10f,
-                        circlePaint)
+//                    canvas.drawCircle(
+//                        lineData.startX ,
+//                        lineData.startY ,
+//                        radius+10f,
+//                        circlePaint)
 
                     canvas.drawCircle(
                         lineData.startX ,
                         lineData.startY ,
-                        radius,
+                        7f,
                         pointPaint)
 
-                    canvas.drawCircle(
-                        lineData.endX ,
-                        lineData.endY ,
-                        radius+10f,
-                        circlePaint)
+//                    canvas.drawCircle(
+//                        lineData.endX ,
+//                        lineData.endY ,
+//                        radius+10f,
+//                        circlePaint)
 
                     canvas.drawCircle(
                         lineData.endX ,
                         lineData.endY ,
-                        radius,
+                        7f,
                         pointPaint)
 
 
