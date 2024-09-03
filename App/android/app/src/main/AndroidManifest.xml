@@ -16,8 +16,11 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
+            android:name=".ActivityPolicy"
+            android:exported="false" />
+        <activity
             android:name=".first"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,12 +33,11 @@
         <activity
             android:name=".ActivityLogin"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ActivityRegistrations"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
-
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ActivityVideo"
             android:exported="false" />

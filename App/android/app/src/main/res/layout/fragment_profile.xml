@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="16dp"
     android:background="@drawable/gradient1">
 
     <TextView
@@ -12,10 +11,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:textColor="#00676D"
         android:text="Account"
-        android:textSize="35dp"
-        android:gravity="left"
+        android:textSize="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -153,6 +152,17 @@
             app:backgroundTint="#F14A6B"
             android:background="@drawable/button_background"
              />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Privacy Policy and Account"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:textColor="#007F8A"
+            android:id="@+id/policy"
+            android:clickable="true"
+            android:focusable="true"/>
 
     </LinearLayout>
 
