@@ -31,6 +31,7 @@ import com.google.mediapipe.examples.poselandmarker.FirebaseManager.fetchCollect
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.Companion.TAG
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import java.util.Locale
@@ -81,6 +82,8 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     private var repCount = 0
     private var repTotal = 3
+
+    private var resultBat: ObjectDetectorResult? = null
 
 
 
@@ -319,11 +322,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
 
     fun clear() {
         results = null
+        resultBat=null
         pointPaint.reset()
         linePaint.reset()
         circlePaint.reset()
         invalidate()
         initPaints()
+
     }
 
     private fun initPaints() {
@@ -378,6 +383,29 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         canvas.drawText("Position: $currentPosition", width / 2f, height*1f/6f, paintPos)
         val repMore =repTotal-repCount
         canvas.drawText("$repMore reps more ", width / 2f, height*4f/6f, paintPos)
+
+        Log.d(TAG,"resultbroo$results")
+        Log.d(TAG,"broge bat eke result$resultBat")
+
+
+        resultBat?.detections()?.forEach { detection ->
+            val boundingBox = detection.boundingBox()
+            if (boundingBox != null) {
+                // Define paint for the line
+                val paintLine = Paint().apply {
+                    color = Color.BLUE // Choose a different color for the object detection line
+                    strokeWidth = 5f // Choose a stroke width
+                    style = Paint.Style.STROKE // Draw line
+                }
+
+                // Draw a line connecting the top-left and bottom-right corners
+                canvas.drawLine(
+                    boundingBox.left*3.5f, boundingBox.top*3.5f,
+                    boundingBox.right*3.5f, boundingBox.bottom*3.5f,
+                    paintLine
+                )
+            }
+        }
         results?.let { poseLandmarkerResult ->
             val linesToDraw = mutableListOf<LineData>()
             var allAnglesValid = false
@@ -781,6 +809,32 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
         }
         invalidate()
     }
+    fun setResultsB(
+        objectDetector: ObjectDetectorResult,
+        imageHeight: Int,
+        imageWidth: Int,
+        runningMode: RunningMode = RunningMode.IMAGE
+    ) {
+        resultBat = objectDetector
+        this.imageHeight = imageHeight
+        this.imageWidth = imageWidth
+
+        scaleFactor = when (runningMode) {
+            RunningMode.IMAGE,
+            RunningMode.VIDEO -> {
+                min(width * 1f / imageWidth, height * 1f / imageHeight)
+            }
+            RunningMode.LIVE_STREAM -> {
+                // PreviewView is in FILL_START mode. So we need to scale up the
+                // landmarks to match with the size that the captured images will be
+                // displayed.
+                max(width * 1f / imageWidth, height * 1f / imageHeight)
+            }
+        }
+        invalidate()
+    }
+
+
 
     companion object {
 

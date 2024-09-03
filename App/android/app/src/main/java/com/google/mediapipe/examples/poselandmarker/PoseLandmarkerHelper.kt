@@ -15,6 +15,7 @@
  */
 package com.google.mediapipe.examples.poselandmarker
 
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -28,11 +29,16 @@ import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.core.Delegate
+import com.google.mediapipe.tasks.vision.core.ImageProcessingOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetector
+import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 
 class PoseLandmarkerHelper(
+    var maxResults: Int = 3,
+    var currentModelbat: Int = MODEL_EFFICIENTDETV0,
     var minPoseDetectionConfidence: Float = DEFAULT_POSE_DETECTION_CONFIDENCE,
     var minPoseTrackingConfidence: Float = DEFAULT_POSE_TRACKING_CONFIDENCE,
     var minPosePresenceConfidence: Float = DEFAULT_POSE_PRESENCE_CONFIDENCE,
@@ -43,6 +49,9 @@ class PoseLandmarkerHelper(
     // this listener is only used when running in RunningMode.LIVE_STREAM
     val poseLandmarkerHelperListener: LandmarkerListener? = null
 ) {
+    private var objectDetector: ObjectDetector? = null
+    private var imageRotation = 0
+    private lateinit var imageProcessingOptions: ImageProcessingOptions
 
     // For this example this needs to be a var so it can be reset on changes.
     // If the Pose Landmarker will not change, a lazy val would be preferable.
@@ -50,9 +59,12 @@ class PoseLandmarkerHelper(
 
     init {
         setupPoseLandmarker()
+        setupObjectDetector()
     }
 
     fun clearPoseLandmarker() {
+        objectDetector?.close()
+        objectDetector = null
         poseLandmarker?.close()
         poseLandmarker = null
     }
@@ -67,6 +79,82 @@ class PoseLandmarkerHelper(
     // that are created on the main thread and used on a background thread, but
     // the GPU delegate needs to be used on the thread that initialized the
     // Landmarker
+
+    ///////////////////////////////////////////
+    fun setupObjectDetector() {
+        // Set general detection options, including number of used threads
+        val baseOptionsBuilder = BaseOptions.builder()
+
+        // Use the specified hardware for running the model. Default to CPU
+        when (currentDelegate) {
+            DELEGATE_CPU -> {
+                baseOptionsBuilder.setDelegate(Delegate.CPU)
+            }
+
+            DELEGATE_GPU -> {
+                // Is there a check for GPU being supported?
+                baseOptionsBuilder.setDelegate(Delegate.GPU)
+            }
+        }
+
+        val modelName = when (currentModel) {
+            MODEL_EFFICIENTDETV0 -> "model.tflite"
+            MODEL_EFFICIENTDETV2 -> "model.tflite"
+            else -> "model.tflite"
+        }
+
+        baseOptionsBuilder.setModelAssetPath(modelName)
+
+        // Check if runningMode is consistent with objectDetectorListener
+        when (runningMode) {
+            RunningMode.LIVE_STREAM -> {
+                if (poseLandmarkerHelperListener == null) {
+                    throw IllegalStateException(
+                        "objectDetectorListener must be set when runningMode is LIVE_STREAM."
+                    )
+                }
+            }
+
+            else -> {
+                // no-op
+            }
+        }
+
+        try {
+
+            val optionsBuilder = ObjectDetector.ObjectDetectorOptions.builder()
+                .setBaseOptions(baseOptionsBuilder.build())
+                .setScoreThreshold(minPoseDetectionConfidence).setRunningMode(runningMode)
+                .setMaxResults(maxResults)
+
+            imageProcessingOptions = ImageProcessingOptions.builder()
+                .setRotationDegrees(imageRotation).build()
+
+            if (runningMode == RunningMode.LIVE_STREAM) {
+                optionsBuilder
+                    .setResultListener(this::returnLivestreamResultBat)
+                    .setErrorListener(this::returnLivestreamError)
+            }
+
+            val options = optionsBuilder.build()
+            objectDetector = ObjectDetector.createFromOptions(context, options)
+        } catch (e: IllegalStateException) {
+            poseLandmarkerHelperListener?.onError(
+                "Object detector failed to initialize. See error logs for details"
+            )
+            Log.e(TAG, "TFLite failed to load model with error: " + e.message)
+        } catch (e: RuntimeException) {
+            poseLandmarkerHelperListener?.onError(
+                "Object detector failed to initialize. See error logs for " + "details",
+                GPU_ERROR
+            )
+            Log.e(
+                TAG,
+                "Object detector failed to load model with error: " + e.message
+            )
+        }
+    }
+    ////////////////////////
     fun setupPoseLandmarker() {
         // Set general pose landmarker options
         val baseOptionBuilder = BaseOptions.builder()
@@ -202,6 +290,7 @@ class PoseLandmarkerHelper(
     @VisibleForTesting
     fun detectAsync(mpImage: MPImage, frameTime: Long) {
         poseLandmarker?.detectAsync(mpImage, frameTime)
+        objectDetector?.detectAsync(mpImage, imageProcessingOptions, frameTime)
         // As we're using running mode LIVE_STREAM, the landmark result will
         // be returned in returnLivestreamResult function
     }
@@ -345,6 +434,7 @@ class PoseLandmarkerHelper(
         // Run pose landmarker using MediaPipe Pose Landmarker API
         poseLandmarker?.detect(mpImage)?.also { landmarkResult ->
             val inferenceTimeMs = SystemClock.uptimeMillis() - startTime
+            val resultbat = emptyList<ObjectDetectorResult>()
             return ResultBundle(
                 listOf(landmarkResult),
                 inferenceTimeMs,
@@ -359,6 +449,23 @@ class PoseLandmarkerHelper(
             "Pose Landmarker failed to detect."
         )
         return null
+    }
+
+    private fun returnLivestreamResultBat(
+        resultbat: ObjectDetectorResult,
+        input: MPImage
+    ) {
+        val finishTimeMs = SystemClock.uptimeMillis()
+        val inferenceTimebat = finishTimeMs - resultbat.timestampMs()
+
+        poseLandmarkerHelperListener?.onResultsB(
+            ResultBundleB(
+                listOf(resultbat),
+                inferenceTimebat,
+                input.height,
+                input.width
+            )
+        )
     }
 
     // Return the landmark result to this PoseLandmarkerHelper's caller
@@ -391,6 +498,12 @@ class PoseLandmarkerHelper(
 
     companion object {
 
+        const val MAX_RESULTS_DEFAULT = 3
+        const val THRESHOLD_DEFAULT = 0.5F
+
+        const val MODEL_EFFICIENTDETV0 = 0
+        const val MODEL_EFFICIENTDETV2 = 1
+
 
 
         const val TAG = "PoseLandmarkerHelper"
@@ -414,6 +527,13 @@ class PoseLandmarkerHelper(
         var angle: Double = 0.0
     }
 
+    data class ResultBundleB(
+        val resultsBat: List<ObjectDetectorResult>,
+        val inferenceTimebat: Long,
+        val inputImageHeight: Int,
+        val inputImageWidth: Int,
+    )
+
     data class ResultBundle(
         val results: List<PoseLandmarkerResult>,
         val inferenceTime: Long,
@@ -427,6 +547,7 @@ class PoseLandmarkerHelper(
     interface LandmarkerListener {
         fun onError(error: String, errorCode: Int = OTHER_ERROR)
         fun onResults(resultBundle: ResultBundle)
+        fun onResultsB(resultBundle: ResultBundleB)
 
     }
 }

@@ -35,7 +35,7 @@ import com.google.mediapipe.examples.poselandmarker.MainViewModel
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentGalleryBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -75,6 +75,15 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
             }
         }
+
+    override fun onResultsB(resultBundle: PoseLandmarkerHelper.ResultBundleB) {
+        activity?.runOnUiThread {
+            if (_fragmentGalleryBinding != null) {
+                // Handle ObjectDetectorResult
+                // Update UI or do something with resultBundle.resultsBat
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

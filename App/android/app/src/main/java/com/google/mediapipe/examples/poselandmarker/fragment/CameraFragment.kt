@@ -70,6 +70,26 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
 
+    override fun onResultsB(resultBundleB: PoseLandmarkerHelper.ResultBundleB) {
+        activity?.runOnUiThread {
+            if (_fragmentCameraBinding != null) {
+                fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
+                    String.format("%d ms", resultBundleB.inferenceTimebat)
+
+                // Pass necessary information to OverlayView for drawing on the canvas
+                fragmentCameraBinding.overlay.setResultsB(
+                    resultBundleB.resultsBat.first(),
+                    resultBundleB.inputImageHeight,
+                    resultBundleB.inputImageWidth,
+                    RunningMode.LIVE_STREAM
+                )
+
+                // Force a redraw
+                fragmentCameraBinding.overlay.invalidate()
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         // Make sure that all permissions are still present, since the
