@@ -4,6 +4,7 @@ import androidx.core.content.ContextCompat
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
@@ -51,8 +52,9 @@ class ActivitySprint : AppCompatActivity() {
 
             for (collectionName in collectionNames) {
                 val button = Button(this).apply {
-                    val buttonName = collectionName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                    val buttonName = collectionName
                     text = buttonName
+                    Log.d("button","$buttonName")
                     setTextColor(ContextCompat.getColor(context, R.color.darkteal))
                     textSize = 25f
                     setPadding(40, 80, 40, 80) // Adjust padding if necessary
@@ -63,6 +65,7 @@ class ActivitySprint : AppCompatActivity() {
                     // Set the OnClickListener to handle the button click
                     setOnClickListener {
                         technique = (it as Button).text.toString()
+                        Log.d("check","$technique")
                         callActivity()
                     }
 
